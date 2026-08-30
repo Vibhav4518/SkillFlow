@@ -32,8 +32,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Deployment / Vercel
+# Deployment / Vercel & Netlify
 .vercel
+.netlify
 
 # OS and IDE files
 .DS_Store
