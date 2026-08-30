@@ -5,6 +5,10 @@ import { ForbiddenError, UnauthorizedError } from "../../../errors/app.error.js"
 
 vi.mock("../../../infrastructure/database/lib/prisma.js", () => ({
   prisma: {
+    employerProfile: {
+      findFirst: vi.fn(),
+      findUnique: vi.fn(),
+    },
     job: {
       count: vi.fn(),
     },

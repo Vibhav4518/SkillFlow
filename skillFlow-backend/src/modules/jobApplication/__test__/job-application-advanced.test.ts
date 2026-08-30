@@ -17,6 +17,7 @@ vi.mock("../../../infrastructure/database/lib/prisma.js", () => ({
     },
     employerProfile: {
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
     },
     job: {
       findUnique: vi.fn(),
@@ -135,6 +136,7 @@ describe("JobApplicationService - Advanced & Scoping Rules", () => {
 
     it("employer sees applications for company jobs", async () => {
       vi.mocked(prisma.employerProfile.findUnique).mockResolvedValue(employerProfile as any);
+      vi.mocked(prisma.employerProfile.findFirst).mockResolvedValue(employerProfile as any);
       mockRepo.findEmployerApplications.mockResolvedValue([sampleApp]);
 
       const apps = await service.getAllJobApplications(employerUser);

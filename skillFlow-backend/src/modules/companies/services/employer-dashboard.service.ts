@@ -32,9 +32,7 @@ export class EmployerDashboardService {
   }
 
   async getDashboardStats(employerUserId: string): Promise<EmployerDashboardStatsDTO> {
-    if (!employerUserId) {
-      throw new UnauthorizedError("User authentication required");
-    }
+    const companyId = await this.getEmployerCompanyId(employerUserId);
 
     const profile = await prisma.employerProfile.findFirst({
       where: {

@@ -49,12 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return subscribeToken(setAccessTokenState);
   }, []);
 
-  // On mount: attempt silent refresh, then load current user via /auth/me
+  // On mount: load current user via /auth/me or attempt silent refresh
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
-      const token = await refreshAccessToken();
+      let token = getAccessToken();
+      if (!token) {
+        token = await refreshAccessToken();
+      }
 
       if (!token) {
         if (!cancelled) setIsLoading(false);
@@ -66,6 +69,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = json?.data || json?.user;
         if (userData && !cancelled) {
           setUser(userData);
+        } else if (!json?.success) {
+          const refreshed = await refreshAccessToken();
+          if (refreshed) {
+            const json2 = await apiFetch("/auth/me", { skipRefreshRetry: true });
+            const userData2 = json2?.data || json2?.user;
+            if (userData2 && !cancelled) {
+              setUser(userData2);
+            }
+          } else {
+            setToken(null);
+            setUser(null);
+          }
         }
       } catch {
         // Silently fail — user is logged out

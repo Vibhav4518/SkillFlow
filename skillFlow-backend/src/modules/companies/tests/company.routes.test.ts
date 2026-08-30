@@ -55,6 +55,12 @@ const mocks = vi.hoisted(() => {
     updateVerificationStatus: vi.fn(),
 
     deleteCompany: vi.fn(),
+
+    getCompanyEmployers: vi.fn(),
+
+    addCompanyEmployer: vi.fn(),
+
+    toggleEmployerStatus: vi.fn(),
   };
 });
 
@@ -100,6 +106,12 @@ vi.mock(
         mocks.updateVerificationStatus;
 
       deleteCompany = mocks.deleteCompany;
+
+      getCompanyEmployers = mocks.getCompanyEmployers;
+
+      addCompanyEmployer = mocks.addCompanyEmployer;
+
+      toggleEmployerStatus = mocks.toggleEmployerStatus;
     },
   }),
 );

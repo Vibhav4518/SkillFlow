@@ -1,17 +1,27 @@
 "use client";
 
-let accessToken: string | null = null;
+let accessToken: string | null = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 let refreshPromise: Promise<string | null> | null = null;
 
 type Listener = (token: string | null) => void;
 const listeners = new Set<Listener>();
 
 export function getAccessToken() {
+  if (accessToken === null && typeof window !== "undefined") {
+    accessToken = localStorage.getItem("accessToken");
+  }
   return accessToken;
 }
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
+  if (typeof window !== "undefined") {
+    if (token) {
+      localStorage.setItem("accessToken", token);
+    } else {
+      localStorage.removeItem("accessToken");
+    }
+  }
   listeners.forEach((l) => l(token));
 }
 
