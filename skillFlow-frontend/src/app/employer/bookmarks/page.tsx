@@ -13,22 +13,23 @@ function EmployerBookmarksContent() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadBookmarks = async () => {
-    try {
-      setLoading(true);
-      const res = await bookmarkApi.getBookmarks();
-      if (res?.success && Array.isArray(res.data)) {
-        setBookmarks(res.data);
-      }
-    } catch {
-      toast.error("Failed to load bookmarked applications.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadBookmarks();
+    let isMounted = true;
+    async function load() {
+      try {
+        setLoading(true);
+        const res = await bookmarkApi.getBookmarks();
+        if (isMounted && res?.success && Array.isArray(res.data)) {
+          setBookmarks(res.data);
+        }
+      } catch {
+        if (isMounted) toast.error("Failed to load bookmarked applications.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { isMounted = false; };
   }, []);
 
   const handleToggleSelect = (id: string) => {

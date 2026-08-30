@@ -14,23 +14,24 @@ function AdminAuditLogsContent() {
   const [search, setSearch] = useState("");
   const [entityFilter, setEntityFilter] = useState("");
 
-  const fetchLogs = async (p = 1) => {
-    try {
-      setLoading(true);
-      const res = await adminApi.getAuditLogs({ page: p, limit: 15, search, entity: entityFilter });
-      if (res?.success && res?.data) {
-        const list = Array.isArray(res.data) ? res.data : res.data.items || res.data.logs || [];
-        setLogs(list);
-        if (res.data.total || res.meta?.total) setTotal(res.data.total || res.meta.total);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchLogs(page);
-  }, [page, entityFilter]);
+    let isMounted = true;
+    async function load() {
+      try {
+        setLoading(true);
+        const res = await adminApi.getAuditLogs({ page, limit: 15, search, entity: entityFilter });
+        if (isMounted && res?.success && res?.data) {
+          const list = Array.isArray(res.data) ? res.data : res.data.items || res.data.logs || [];
+          setLogs(list);
+          if (res.data.total || res.meta?.total) setTotal(res.data.total || res.meta.total);
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { isMounted = false; };
+  }, [page, search, entityFilter]);
 
   return (
     <div className="min-h-screen py-10 bg-slate-950 text-slate-100">
