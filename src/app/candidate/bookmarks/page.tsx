@@ -14,6 +14,12 @@ function CandidateBookmarksContent() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const loadBookmarks = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
   useEffect(() => {
     let isMounted = true;
     async function load() {
@@ -31,7 +37,7 @@ function CandidateBookmarksContent() {
     }
     load();
     return () => { isMounted = false; };
-  }, []);
+  }, [refreshTrigger]);
 
   const handleToggleSelect = (id: string) => {
     setSelectedIds((prev) =>
