@@ -14,6 +14,13 @@ function AdminAuditLogsContent() {
   const [search, setSearch] = useState("");
   const [entityFilter, setEntityFilter] = useState("");
 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const fetchLogs = (p?: number) => {
+    if (p) setPage(p);
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
   useEffect(() => {
     let isMounted = true;
     async function load() {
@@ -31,7 +38,7 @@ function AdminAuditLogsContent() {
     }
     load();
     return () => { isMounted = false; };
-  }, [page, search, entityFilter]);
+  }, [page, search, entityFilter, refreshTrigger]);
 
   return (
     <div className="min-h-screen py-10 bg-slate-950 text-slate-100">
