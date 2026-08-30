@@ -1,0 +1,24 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src/features/auth",
+            "from": "./src/features/users",
+            "except": ["./index.ts"],
+            "message": "Direct deep imports into 'users' feature internals are forbidden. Import from 'users/index.ts' instead."
+          },
+          {
+            "target": "./src/features/users",
+            "from": "./src/features/auth",
+            "except": ["./index.ts"],
+            "message": "Direct deep imports into 'auth' feature internals are forbidden. Import from 'auth/index.ts' instead."
+          }
+        ]
+      }
+    ]
+  }
+}

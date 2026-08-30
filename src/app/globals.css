@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+
+/* ====================================================
+   LIGHT MODE VARIABLES (default)
+==================================================== */
+:root {
+  /* Brand Colors */
+  --color-primary: #4F46E5;
+  --color-primary-hover: #4338CA;
+  --color-secondary: #06B6D4;
+  --color-light: #F8FAFC;
+
+  /* Backgrounds */
+  --color-bg: #F8FAFC;
+  --color-bg-card: #FFFFFF;
+  --color-bg-muted: #F1F5F9;
+  --color-bg-input: #FFFFFF;
+
+  /* Text */
+  --color-text: #0F172A;
+  --color-text-muted: #64748B;
+  --color-text-subtle: #94A3B8;
+
+  /* Borders */
+  --color-border: #E2E8F0;
+  --color-border-focus: #6366F1;
+
+  /* Status */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #6366F1;
+
+  /* Navbar */
+  --color-nav-bg: rgba(255,255,255,0.95);
+  --color-nav-border: #E2E8F0;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.04);
+}
+
+/* ====================================================
+   DARK MODE VARIABLES
+==================================================== */
+.dark {
+  /* Brand Colors */
+  --color-primary: #6366F1;
+  --color-primary-hover: #818CF8;
+  --color-secondary: #22D3EE;
+
+  /* Backgrounds */
+  --color-bg: #0F172A;
+  --color-bg-card: #1E293B;
+  --color-bg-muted: #1E293B;
+  --color-bg-input: #1E293B;
+
+  /* Text */
+  --color-text: #F1F5F9;
+  --color-text-muted: #94A3B8;
+  --color-text-subtle: #64748B;
+
+  /* Borders */
+  --color-border: #334155;
+  --color-border-focus: #818CF8;
+
+  /* Status */
+  --color-success: #34D399;
+  --color-warning: #FCD34D;
+  --color-error: #F87171;
+  --color-info: #818CF8;
+
+  /* Navbar */
+  --color-nav-bg: rgba(15,23,42,0.95);
+  --color-nav-border: #334155;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* ====================================================
+   RESET & BASE
+==================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-geist-sans, 'Inter', system-ui, -apple-system, sans-serif);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-light);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ====================================================
+   TOAST ANIMATION
+==================================================== */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ====================================================
+   FOCUS RING
+==================================================== */
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* ====================================================
+   SCROLLBAR (subtle)
+==================================================== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
