@@ -1,0 +1,621 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================
+// USER
+// =========================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         Role     @default(CANDIDATE)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refresh_tokens RefreshToken[]
+
+  candidateProfile CandidateProfile?
+  employerProfile  EmployerProfile?
+  notifications    Notification[]
+  companyReviews   CompanyReview[]
+  bookmarks        Bookmark[]
+
+  @@map("users")
+}
+
+// =========================
+// REFRESH TOKEN
+// =========================
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// =========================
+// CANDIDATE PROFILE
+// =========================
+
+model CandidateProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  // Basic Details
+  headline        String?
+  summary         String?
+  phone           String?
+  location        String?
+  profilePhotoUrl String?
+
+  experienceYears Int?
+
+  preferredWorkType WorkType?
+
+  // Resume
+  resumeUrl          String?
+  resumeOriginalName String?
+  resumeFileSize     Int?
+  resumeUploadedAt   DateTime?
+
+  // Social / Portfolio
+  linkedinUrl  String?
+  githubUrl    String?
+  portfolioUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  skills         CandidateSkill[]
+  education      Education[]
+  languages      CandidateLanguage[]
+  experiences    CandidateExperience[]
+  projects       CandidateProject[]
+  certifications CandidateCertification[]
+  applications   JobApplication[]
+
+  @@map("candidate_profiles")
+}
+
+// =========================
+// EDUCATION
+// =========================
+
+model Education {
+  id          String @id @default(uuid())
+  candidateId String
+
+  degree       String
+  institution  String
+  fieldOfStudy String?
+
+  startYear Int?
+  endYear   Int?
+
+  grade     String?
+  gradeType String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@map("candidate_education")
+}
+
+// =========================
+// SKILL
+// =========================
+
+model Skill {
+  id   String @id @default(uuid())
+  name String @unique
+
+  candidateSkills CandidateSkill[]
+  jobSkills       JobSkill[]
+
+  @@map("skills")
+}
+
+// =========================
+// CANDIDATE ↔ SKILL
+// =========================
+
+model CandidateSkill {
+  candidateId String
+  skillId     String
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  skill     Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([candidateId, skillId])
+  @@map("candidate_skills")
+}
+
+// =========================
+// CANDIDATE LANGUAGE
+// =========================
+
+model CandidateLanguage {
+  id          String @id @default(uuid())
+  candidateId String
+
+  language String
+
+  canRead  Boolean @default(false)
+  canWrite Boolean @default(false)
+  canSpeak Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@map("candidate_languages")
+}
+
+// =========================
+// CANDIDATE EXPERIENCE
+// =========================
+
+model CandidateExperience {
+  id          String @id @default(uuid())
+  candidateId String
+
+  type ExperienceType
+
+  companyName String
+  designation String
+
+  startDate DateTime
+  endDate   DateTime?
+
+  description  String?
+  technologies String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@map("candidate_experiences")
+}
+
+// =========================
+// CANDIDATE PROJECT
+// =========================
+
+model CandidateProject {
+  id          String @id @default(uuid())
+  candidateId String
+
+  name         String
+  description  String?
+  technologies String?
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  githubUrl String?
+  liveUrl   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@map("candidate_projects")
+}
+
+// =========================
+// CANDIDATE CERTIFICATION
+// =========================
+
+model CandidateCertification {
+  id          String @id @default(uuid())
+  candidateId String
+
+  name                String
+  issuingOrganization String?
+
+  issueDate DateTime?
+
+  credentialUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@map("candidate_certifications")
+}
+
+// =========================
+// COMPANY
+// =========================
+
+model Company {
+  id                 String             @id @default(uuid())
+  name               String
+  websiteUrl         String?
+  logoUrl            String?
+  description        String?
+  location           String?
+  companySize        String?
+  industry           String?
+  verificationDocumentsUrl String?
+  verificationStatus VerificationStatus @default(PENDING)
+  rejectionReason    String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  employers EmployerProfile[]
+  jobs      Job[]
+  reviews   CompanyReview[]
+
+  @@map("companies")
+}
+
+// =========================
+// EMPLOYER PROFILE
+// =========================
+
+model EmployerProfile {
+  id        String @id @default(uuid())
+  userId    String @unique
+  companyId String
+
+  designation     String?
+  department      String?
+  phone           String?
+  profilePhotoUrl String?
+  isVerified      Boolean @default(false)
+  isActive        Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id])
+
+  jobs Job[]
+
+  @@index([companyId])
+  @@map("employer_profiles")
+}
+
+// =========================
+// JOB CATEGORY
+// =========================
+
+model JobCategory {
+  id   String @id @default(uuid())
+  name String @unique
+
+  jobs Job[]
+
+  @@map("job_categories")
+}
+
+// =========================
+// JOB
+// =========================
+
+model Job {
+  id String @id @default(uuid())
+
+  companyId           String
+  createdByEmployerId String
+  categoryId          String?
+
+  title       String
+  description String
+  location    String?
+
+  workType WorkType?
+  jobType  JobType?
+
+  salaryMin       Int?
+  salaryMax       Int?
+  isSalaryVisible Boolean @default(true)
+
+  experienceMin Int?
+  experienceMax Int?
+
+  vacancies Int?
+
+  status JobStatus @default(DRAFT)
+  rejectionReason String?
+
+  applicationDeadline DateTime?
+  publishedAt         DateTime?
+
+  isPromoted         Boolean        @default(false)
+  promotionType      PromotionType?
+  promotionStartAt   DateTime?
+  promotionEndAt     DateTime?
+  promotionPaymentId String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company           Company         @relation(fields: [companyId], references: [id])
+  createdByEmployer EmployerProfile @relation(fields: [createdByEmployerId], references: [id])
+  category          JobCategory?    @relation(fields: [categoryId], references: [id])
+
+  skills       JobSkill[]
+  applications JobApplication[]
+  bookmarks    Bookmark[]
+
+  @@index([companyId])
+  @@index([createdByEmployerId])
+  @@index([categoryId])
+  @@map("jobs")
+}
+
+// =========================
+// JOB ↔ SKILL
+// =========================
+
+model JobSkill {
+  jobId   String
+  skillId String
+
+  job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, skillId])
+  @@map("job_skills")
+}
+
+// =========================
+// JOB APPLICATION
+// =========================
+
+model JobApplication {
+  id String @id @default(uuid())
+
+  jobId       String
+  candidateId String
+
+  coverLetter String?
+
+  status ApplicationStatus @default(APPLIED)
+
+  statusUpdatedAt DateTime?
+
+  appliedAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  withdrawnAt DateTime?
+
+  job           Job                        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate     CandidateProfile           @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  statusHistory ApplicationStatusHistory[]
+  bookmarks     Bookmark[]
+
+  @@unique([jobId, candidateId])
+  @@index([candidateId])
+  @@map("job_applications")
+}
+
+// =========================
+// ENUMS
+// =========================
+
+enum Role {
+  CANDIDATE
+  EMPLOYER
+  COMPANY_ADMIN
+  ADMIN
+}
+
+enum WorkType {
+  REMOTE
+  ONSITE
+  HYBRID
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum ExperienceType {
+  INTERNSHIP
+  EXPERIENCE
+}
+
+enum JobStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  PUBLISHED
+  REJECTED
+  CLOSED
+  EXPIRED
+}
+
+enum PromotionType {
+  FEATURED
+  URGENT
+  HIGHLIGHTED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  IN_PROGRESS
+  SHORTLISTED
+  INTERVIEW
+  REJECTED
+  SELECTED
+  WITHDRAWN
+}
+
+// =========================
+// APPLICATION STATUS HISTORY
+// =========================
+
+model ApplicationStatusHistory {
+  id            String             @id @default(uuid())
+  applicationId String
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  changedById   String?
+  changedByRole Role?
+  reason        String?
+  automated     Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@map("application_status_history")
+}
+
+// =========================
+// NOTIFICATION
+// =========================
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  metadata  Json?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+// =========================
+// CONTACT MESSAGE
+// =========================
+
+model ContactMessage {
+  id        String               @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@map("contact_messages")
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  RESOLVED
+}
+
+// =========================
+// AUDIT LOG
+// =========================
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@map("audit_logs")
+}
+
+// =========================
+// COMPANY REVIEW
+// =========================
+
+model CompanyReview {
+  id        String   @id @default(uuid())
+  companyId String
+  userId    String
+  rating    Int      @default(5)
+  title     String?
+  review    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([companyId])
+  @@map("company_reviews")
+}
+
+// =========================
+// BOOKMARK
+// =========================
+
+model Bookmark {
+  id            String       @id @default(uuid())
+  userId        String
+  jobId         String?
+  applicationId String?
+  type          BookmarkType @default(JOB)
+  createdAt     DateTime     @default(now())
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job         Job?            @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  application JobApplication? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@unique([userId, applicationId])
+  @@index([userId])
+  @@map("bookmarks")
+}
+
+enum BookmarkType {
+  JOB
+  APPLICATION
+}
+

@@ -1,0 +1,35 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "import"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src/modules/auth",
+            "from": "./src/modules/users",
+            "except": ["./index.ts"],
+            "message": "Direct deep imports into 'users' module internals are forbidden. Import from 'users/index.ts' instead."
+          },
+          {
+            "target": "./src/modules/users",
+            "from": "./src/modules/auth",
+            "except": ["./index.ts"],
+            "message": "Direct deep imports into 'auth' module internals are forbidden. Import from 'auth/index.ts' instead."
+          }
+        ]
+      }
+    ]
+  }
+}
