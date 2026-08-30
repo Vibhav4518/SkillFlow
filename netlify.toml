@@ -1,0 +1,10 @@
+[build]
+  base = "skillFlow-frontend"
+  command = "npm run build"
+  publish = "skillFlow-frontend/.next"
+
+[build.environment]
+  NEXT_PUBLIC_API_URL = "https://skillflow-5ses.onrender.com/api/v1"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
