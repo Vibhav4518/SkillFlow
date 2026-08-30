@@ -22,7 +22,7 @@ export function subscribeToken(listener: Listener) {
   };
 }
 
-const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://skillflow-5ses.onrender.com/api/v1";
 const API_BASE = RAW_API_URL.replace(/\/+$/, "");
 
 function normalizeUrl(endpoint: string): string {
