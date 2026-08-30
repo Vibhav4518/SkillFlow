@@ -37,7 +37,7 @@ function CandidateBookmarksContent() {
     }
     load();
     return () => { isMounted = false; };
-  }, [refreshTrigger]);
+  }, [refreshTrigger, toast]);
 
   const handleToggleSelect = (id: string) => {
     setSelectedIds((prev) =>
