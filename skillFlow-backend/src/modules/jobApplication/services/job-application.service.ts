@@ -14,6 +14,7 @@ import type {
 
 import { JobApplication } from "../entities/job-application.entity.js";
 import { notificationsService } from "../../notifications/notifications.service.js";
+import { candidateService } from "../../candidates/services/candidate.service.js";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function isUuid(val?: string): boolean {
@@ -41,15 +42,30 @@ export class JobApplicationService {
         where: { userId: authContext.userId },
       });
 
+      if (!candidateProfile && isUuid(authContext.userId)) {
+        candidateProfile = await prisma.candidateProfile.findUnique({
+          where: { id: authContext.userId },
+        });
+      }
+
+      if (!candidateProfile) {
+        try {
+          candidateProfile = await candidateService.getOrCreateCandidateProfile(authContext.userId);
+        } catch (_err) {
+          if (isUuid(authContext.userId)) {
+            try {
+              candidateProfile = await prisma.candidateProfile.create({
+                data: { userId: authContext.userId },
+              });
+            } catch (_e) {}
+          }
+        }
+      }
+
       if (candidateProfile) {
         candidateId = candidateProfile.id;
-      } else if (isUuid(authContext.userId)) {
-        candidateProfile = await prisma.candidateProfile.create({
-          data: {
-            userId: authContext.userId,
-          },
-        });
-        candidateId = candidateProfile.id;
+      } else {
+        candidateId = authContext.userId;
       }
     }
 
@@ -300,7 +316,16 @@ export class JobApplicationService {
 
       const normalizedRole = authContext.role.toUpperCase();
       if (normalizedRole === "EMPLOYER") {
-        throw new ForbiddenError("Employers cannot delete candidate applications");
+        const employerProfile = await prisma.employerProfile.findFirst({
+          where: { OR: [{ userId: authContext.userId }, { id: authContext.userId }] },
+        });
+        if (!employerProfile) {
+          throw new ForbiddenError("Employer profile required");
+        }
+        const appJobCompanyId = rawApp.job?.companyId;
+        if (appJobCompanyId && appJobCompanyId !== employerProfile.companyId && rawApp.job?.createdByEmployerId !== employerProfile.id) {
+          throw new ForbiddenError("Access denied. You can only delete applications for your company jobs");
+        }
       }
 
       if (normalizedRole === "CANDIDATE") {

@@ -15,7 +15,9 @@ router.patch('/users/:id', adminController.updateUser);
 router.delete('/users/:id', adminController.deleteUser);
 
 router.get('/companies', adminController.getCompanies);
+router.delete('/companies/bulk', adminController.bulkDeleteCompanies);
 router.patch('/companies/:id/verify', adminController.verifyCompany);
+router.delete('/companies/:id', adminController.deleteCompany);
 
 router.get('/jobs', adminController.getJobs);
 router.delete('/jobs/bulk', adminController.bulkDeleteJobs);

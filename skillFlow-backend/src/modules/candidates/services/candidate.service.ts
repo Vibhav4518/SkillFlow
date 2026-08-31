@@ -3,6 +3,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import PDFDocument from "pdfkit";
 import { prisma } from "../../../infrastructure/database/lib/prisma.js";
+import { JobApplicationRepository } from "../../jobApplication/repositories/job-application.repository.js";
+import { JobApplicationMapper } from "../../jobApplication/mappers/job-application.mapper.js";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../../errors/app.error.js";
 import { candidateMapper } from "../mappers/candidate.mapper.js";
 import { candidateRepository, type CandidateWithRelations } from "../repositories/candidate.repository.js";
@@ -500,24 +502,89 @@ export const candidateService = {
 
   // --- My Applications ---
   async getMyApplications(userId: string) {
-    const candidate = await prisma.candidateProfile.findUnique({
-      where: { userId },
-    });
-    if (!candidate) return [];
+    let candidateId = userId;
+    let candidate: any = null;
 
-    return prisma.jobApplication.findMany({
-      where: { candidateId: candidate.id },
-      include: {
-        job: {
-          include: {
-            company: {
-              select: { id: true, name: true, logoUrl: true, location: true },
+    try {
+      candidate = await this.getOrCreateCandidateProfile(userId);
+      if (candidate) {
+        candidateId = candidate.id;
+      }
+    } catch (_e) {
+      // Fallback if profile auto-create failed
+    }
+
+    const appMap = new Map<string, any>();
+
+    // 1. Query Prisma DB applications
+    try {
+      const dbApps = await prisma.jobApplication.findMany({
+        where: {
+          OR: [
+            { candidateId: candidateId },
+            { candidate: { userId: userId } },
+            { candidateId: userId },
+          ],
+        },
+        include: {
+          job: {
+            include: {
+              company: {
+                select: { id: true, name: true, logoUrl: true, location: true },
+              },
+              category: { select: { id: true, name: true } },
             },
-            category: { select: { id: true, name: true } },
+          },
+          candidate: {
+            select: {
+              id: true,
+              userId: true,
+              headline: true,
+              phone: true,
+              location: true,
+              resumeUrl: true,
+            },
           },
         },
-      },
-      orderBy: { appliedAt: "desc" },
-    });
+        orderBy: { appliedAt: "desc" },
+      });
+
+      for (const app of dbApps) {
+        appMap.set(app.id, {
+          ...app,
+          jobId: app.jobId,
+          candidateId: app.candidateId,
+          appliedDate: app.appliedAt,
+          status: app.status,
+        });
+      }
+    } catch (_e) {
+      // DB query fallback
+    }
+
+    // 2. Query repository applications (handles in-memory fallback applications too)
+    try {
+      const repo = new JobApplicationRepository();
+      const repoApps = await repo.findCandidateApplications(candidateId);
+      for (const app of repoApps) {
+        const dto = JobApplicationMapper.toDto(app);
+        if (!appMap.has(dto.id)) {
+          appMap.set(dto.id, dto);
+        }
+      }
+      if (candidateId !== userId) {
+        const repoAppsUser = await repo.findCandidateApplications(userId);
+        for (const app of repoAppsUser) {
+          const dto = JobApplicationMapper.toDto(app);
+          if (!appMap.has(dto.id)) {
+            appMap.set(dto.id, dto);
+          }
+        }
+      }
+    } catch (_e) {
+      // Repo query fallback
+    }
+
+    return Array.from(appMap.values());
   },
 };

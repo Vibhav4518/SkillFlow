@@ -254,6 +254,24 @@ export const adminService = {
     return updated;
   },
 
+  async deleteCompany(id: string) {
+    const res = await prisma.company.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+    await this.logAudit({ action: "COMPANY_DELETED", entity: "Company", entityId: id });
+    return res;
+  },
+
+  async bulkDeleteCompanies(ids: string[]) {
+    await prisma.company.updateMany({
+      where: { id: { in: ids } },
+      data: { deletedAt: new Date() },
+    });
+    await this.logAudit({ action: "BULK_COMPANIES_DELETED", entity: "Company", entityId: ids.join(",") });
+    return { count: ids.length };
+  },
+
   async getJobs(query: { page?: number; limit?: number; status?: string; search?: string }) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 20;

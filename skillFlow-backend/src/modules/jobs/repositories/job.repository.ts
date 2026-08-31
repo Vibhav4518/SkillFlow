@@ -113,8 +113,12 @@ export class JobRepository {
 
   async findByCompanyId(companyId: string, status?: string) {
     const whereClause: any = {
-      companyId,
       deletedAt: null,
+      OR: [
+        { companyId },
+        { createdByEmployer: { userId: companyId } },
+        { createdByEmployerId: companyId },
+      ],
     };
     if (status) {
       whereClause.status = status;

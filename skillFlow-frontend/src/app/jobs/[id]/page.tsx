@@ -102,7 +102,13 @@ export default function JobDetailPage() {
           candidateApi.getProfile(),
         ]);
         if (appRes?.success && Array.isArray(appRes?.data)) {
-          const found = appRes.data.find((a: any) => a.jobId === jobId);
+          const found = appRes.data.find(
+            (a: any) =>
+              a.jobId === jobId ||
+              a.job?.id === jobId ||
+              String(a.jobId) === String(jobId) ||
+              String(a.job?.id) === String(jobId)
+          );
           if (found) setAppliedApp(found);
         }
         if (profRes?.success && profRes?.data) {
@@ -169,7 +175,8 @@ export default function JobDetailPage() {
       if (res.success) {
         toast.success("Application submitted successfully!");
         setApplyModalOpen(false);
-        setAppliedApp(res.data || { status: "APPLIED" });
+        setAppliedApp(res.data || { status: "APPLIED", jobId, appliedAt: new Date().toISOString() });
+        checkUserStatus();
       } else {
         toast.error(res.message || "Could not submit application.");
       }
@@ -340,8 +347,8 @@ export default function JobDetailPage() {
 
               {appliedApp ? (
                 <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-6 py-3 text-center">
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 block">Status: {appliedApp.status}</span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-500">Applied on {new Date(appliedApp.appliedAt || Date.now()).toLocaleDateString()}</span>
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 block uppercase">Status: {appliedApp.status}</span>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-500">Applied on {new Date(appliedApp.appliedAt || appliedApp.appliedDate || Date.now()).toLocaleDateString()}</span>
                 </div>
               ) : isEmployerOrAdmin ? (
                 <div className="rounded-2xl border px-5 py-2.5 text-xs font-semibold" style={{ borderColor: "var(--color-border)", color: "var(--color-text-muted)" }}>

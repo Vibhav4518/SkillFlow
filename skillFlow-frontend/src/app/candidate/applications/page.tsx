@@ -158,7 +158,7 @@ function CandidateApplicationsContent() {
                         Status: {app.status}
                       </span>
                       <span className="text-xs text-gray-400">
-                        Applied {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : app.createdAt ? new Date(app.createdAt).toLocaleDateString() : ""}
+                        Applied {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : app.createdAt ? new Date(app.createdAt).toLocaleDateString() : ""}
                       </span>
                     </div>
 

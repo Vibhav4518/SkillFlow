@@ -39,6 +39,14 @@ export const adminApi = {
     return apiFetch(`/admin/companies/${id}/verify`, { method: 'PATCH', body: { status, rejectionReason } });
   },
 
+  async deleteCompany(id: string) {
+    return apiFetch(`/admin/companies/${id}`, { method: 'DELETE' });
+  },
+
+  async bulkDeleteCompanies(ids: string[]) {
+    return apiFetch('/admin/companies/bulk', { method: 'DELETE', body: { ids } });
+  },
+
   async getJobs(params: { page?: number; limit?: number; status?: string; search?: string } = {}) {
     const query = new URLSearchParams();
     if (params.page) query.append('page', params.page.toString());

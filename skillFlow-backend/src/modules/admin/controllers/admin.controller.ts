@@ -37,9 +37,24 @@ export const adminController = {
 
   async verifyCompany(req: AuthenticatedRequest, res: Response) {
     const id = req.params.id as string;
-    const { status } = req.body;
-    const updated = await adminService.verifyCompany(id, status);
+    const { status, rejectionReason } = req.body;
+    const updated = await adminService.verifyCompany(id, status, rejectionReason);
     res.status(200).json({ success: true, message: 'Company status updated', data: updated });
+  },
+
+  async deleteCompany(req: AuthenticatedRequest, res: Response) {
+    const id = req.params.id as string;
+    await adminService.deleteCompany(id);
+    res.status(200).json({ success: true, message: 'Company deleted successfully' });
+  },
+
+  async bulkDeleteCompanies(req: AuthenticatedRequest, res: Response) {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'Array of company ids required' });
+    }
+    const result = await adminService.bulkDeleteCompanies(ids);
+    res.status(200).json({ success: true, message: `Successfully deleted ${result.count} companies.` });
   },
 
   async getJobs(req: AuthenticatedRequest, res: Response) {

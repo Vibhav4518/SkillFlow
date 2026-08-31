@@ -54,13 +54,13 @@ This project maintains clear separation between frontend and backend services ac
 PORT=4000
 NODE_ENV=development
 
-# Render PostgreSQL Database
-DATABASE_URL="postgresql://skillflow_user:jTO3mBE8mdQt0jffzaP2lenrSGGViGTG@dpg-daaksqdg1s2s73dg3vk0-a.ohio-postgres.render.com/hiring_platform_z6kd?sslmode=require"
-DIRECT_URL="postgresql://skillflow_user:jTO3mBE8mdQt0jffzaP2lenrSGGViGTG@dpg-daaksqdg1s2s73dg3vk0-a.ohio-postgres.render.com/hiring_platform_z6kd?sslmode=require"
+# PostgreSQL Database URL
+DATABASE_URL="postgresql://user:password@localhost:5432/skillflow_db?sslmode=require"
+DIRECT_URL="postgresql://user:password@localhost:5432/skillflow_db?sslmode=require"
 
-JWT_ACCESS_SECRET="your-access-secret"
-JWT_REFRESH_SECRET="your-refresh-secret"
-CORS_ORIGIN="*"
+JWT_ACCESS_SECRET="your-jwt-access-secret"
+JWT_REFRESH_SECRET="your-jwt-refresh-secret"
+CORS_ORIGIN="http://localhost:3000"
 ```
 
 ### Frontend (`skillFlow-frontend/.env.local`)
