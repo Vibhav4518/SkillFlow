@@ -85,3 +85,8 @@ tmp/
 .npm/
 
 prisma/schema-backup.prisma
+
+.env
+backup.dump
+
+prisma/migrations_backup
