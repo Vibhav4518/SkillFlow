@@ -557,7 +557,7 @@ async function seed() {
     data: [
       {
         candidateId: candidateProfile.id,
-        type: ExperienceType.JOB,
+        type: ExperienceType.EXPERIENCE,
         companyName: "TechCorp Labs",
         designation: "Full Stack Engineer",
         startDate: new Date("2022-07-01"),
