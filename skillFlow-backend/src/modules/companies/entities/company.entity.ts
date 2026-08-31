@@ -7,6 +7,7 @@ export interface CompanyEntity {
   id: string;
 
   name: string;
+  industry?: string | null;
 
   websiteUrl: string | null;
   logoUrl: string | null;
@@ -14,8 +15,10 @@ export interface CompanyEntity {
   description: string | null;
   location: string | null;
   companySize: string | null;
+  verificationDocumentsUrl?: string | null;
 
-  verificationStatus: VerificationStatus | null;
+  verificationStatus: VerificationStatus | string | null;
+  rejectionReason?: string | null;
 
   createdAt: Date | null;
   updatedAt: Date | null;

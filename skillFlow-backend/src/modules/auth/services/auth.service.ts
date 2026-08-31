@@ -103,11 +103,13 @@ export class AuthService {
 
     if (userRole === "EMPLOYER" || String(userRole).toUpperCase() === "COMPANY_ADMIN") {
       try {
-        const companyName = (dto as any).companyName || (dto as any).company || `${user.fullName}'s Company`;
+        const rawCompName = (dto as any).companyName || (dto as any).company || (dto as any).company_name || (dto as any).organizationName;
+        const userFullName = (user.fullName || "").trim();
+        const companyName = (rawCompName && String(rawCompName).trim()) ? String(rawCompName).trim() : `${userFullName}'s Company`;
         const prisma = (await import("../../../infrastructure/database/lib/prisma.js")).prisma;
 
         let company = await prisma.company.findFirst({
-          where: { name: { equals: companyName.trim(), mode: "insensitive" } },
+          where: { name: { equals: companyName, mode: "insensitive" } },
         });
 
         if (!company) {

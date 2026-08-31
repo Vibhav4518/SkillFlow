@@ -1,4 +1,4 @@
-﻿import { prisma } from "../../../infrastructure/database/lib/prisma.js";
+import { prisma } from "../../../infrastructure/database/lib/prisma.js";
 import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../../../errors/app.error.js";
 import { EmployerProfileRepository, type IEmployerProfileRepository } from "../repositories/employer-profile.repository.js";
 import { CompanyRepository, type ICompanyRepository } from "../repositories/company.repository.js";
@@ -68,10 +68,15 @@ export class EmployerProfileService implements IEmployerProfileService {
       company: {
         id: company.id,
         name: company.name,
+        industry: company.industry,
+        companySize: company.companySize,
+        description: company.description,
         websiteUrl: company.websiteUrl,
         logoUrl: company.logoUrl,
         location: company.location,
+        verificationDocumentsUrl: company.verificationDocumentsUrl,
         verificationStatus: company.verificationStatus,
+        rejectionReason: company.rejectionReason,
       },
     };
   }
@@ -108,10 +113,15 @@ export class EmployerProfileService implements IEmployerProfileService {
         ? {
             id: profile.company.id,
             name: profile.company.name,
+            industry: profile.company.industry,
+            companySize: profile.company.companySize,
+            description: profile.company.description,
             websiteUrl: profile.company.websiteUrl,
             logoUrl: profile.company.logoUrl,
             location: profile.company.location,
+            verificationDocumentsUrl: profile.company.verificationDocumentsUrl,
             verificationStatus: profile.company.verificationStatus,
+            rejectionReason: profile.company.rejectionReason,
           }
         : undefined,
     };

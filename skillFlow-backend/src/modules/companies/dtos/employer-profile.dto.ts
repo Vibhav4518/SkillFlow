@@ -1,4 +1,4 @@
-﻿export interface CreateEmployerProfileDTO {
+export interface CreateEmployerProfileDTO {
   companyId: string;
   designation?: string;
   department?: string;
@@ -23,10 +23,15 @@ export interface EmployerProfileUserDTO {
 export interface EmployerProfileCompanyDTO {
   id: string;
   name: string;
+  industry?: string | null;
+  companySize?: string | null;
+  description?: string | null;
   websiteUrl: string | null;
   logoUrl: string | null;
   location: string | null;
+  verificationDocumentsUrl?: string | null;
   verificationStatus: string | null;
+  rejectionReason?: string | null;
 }
 
 export interface EmployerProfileResponseDTO {
