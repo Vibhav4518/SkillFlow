@@ -538,7 +538,7 @@ async function seed() {
   });
 
   // Candidate Education
-  await prisma.candidateEducation.createMany({
+  await prisma.education.createMany({
     data: [
       {
         candidateId: candidateProfile.id,
