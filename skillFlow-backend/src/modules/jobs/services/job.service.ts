@@ -27,27 +27,45 @@ export class JobService {
   // GET ALL JOBS (with optional filters)
   // ==========================================================
 
-  async getAllJobs(query?: Record<string, any>): Promise<JobListItemDTO[]> {
-    if (this.jobRepository.findAllWithFilters && query && Object.keys(query).length > 0) {
-      const page = Math.max(1, Number(query.page) || 1);
-      const limit = Math.min(100, Math.max(1, Number(query.limit) || 20));
+  async getAllJobs(query?: Record<string, any>): Promise<any> {
+    const page = Math.max(1, Number(query?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(query?.limit) || 9));
 
+    if (this.jobRepository.findAllWithFilters) {
       const result = await this.jobRepository.findAllWithFilters({
-        search: query.search,
-        location: query.location,
-        workType: query.workType,
-        jobType: query.jobType,
-        categoryId: query.categoryId,
-        sortBy: query.sortBy,
+        search: query?.search,
+        location: query?.location,
+        workType: query?.workType,
+        jobType: query?.jobType,
+        categoryId: query?.categoryId,
+        sortBy: query?.sortBy,
         page,
         limit,
       });
 
-      return (result.jobs || []).map(toJobListItem);
+      const mappedJobs = (result.jobs || []).map(toJobListItem);
+      const totalPages = Math.max(1, Math.ceil((result.total || 0) / limit));
+
+      return {
+        items: mappedJobs,
+        jobs: mappedJobs,
+        total: result.total || 0,
+        page,
+        limit,
+        totalPages,
+      };
     }
 
     const jobs = await this.jobRepository.findAll();
-    return jobs.map(toJobListItem);
+    const mapped = jobs.map(toJobListItem);
+    return {
+      items: mapped,
+      jobs: mapped,
+      total: mapped.length,
+      page: 1,
+      limit: mapped.length,
+      totalPages: 1,
+    };
   }
 
   // ==========================================================
