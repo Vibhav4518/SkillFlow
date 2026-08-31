@@ -10,6 +10,8 @@ router.use(requireAuth, requireRole('ADMIN'));
 router.get('/dashboard', adminController.getDashboardStats);
 
 router.get('/users', adminController.getUsers);
+router.post('/users/admin', adminController.createAdmin);
+router.patch('/users/:id', adminController.updateUser);
 router.delete('/users/:id', adminController.deleteUser);
 
 router.get('/companies', adminController.getCompanies);

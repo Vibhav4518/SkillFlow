@@ -18,6 +18,14 @@ export const adminApi = {
     return apiFetch(`/admin/users/${id}`, { method: 'DELETE' });
   },
 
+  async createAdmin(data: { fullName: string; email: string; password?: string }) {
+    return apiFetch(`/admin/users/admin`, { method: 'POST', body: data });
+  },
+
+  async updateUser(id: string, data: { fullName?: string; email?: string; role?: string }) {
+    return apiFetch(`/admin/users/${id}`, { method: 'PATCH', body: data });
+  },
+
   async getCompanies(params: { page?: number; limit?: number; status?: string; search?: string } = {}) {
     const query = new URLSearchParams();
     if (params.page) query.append('page', params.page.toString());

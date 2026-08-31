@@ -251,24 +251,41 @@ function JobsExploreContent() {
           </div>
         )}
 
-        {/* Pagination */}
+        {/* Numbered Pagination */}
         {totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-2">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
             <button
-              disabled={filters.page === 1}
+              disabled={(filters.page || 1) <= 1}
               onClick={() => setFilters({ ...filters, page: (filters.page || 1) - 1 })}
-              className="flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium disabled:opacity-40"
+              className="flex items-center gap-1 rounded-2xl border px-3.5 py-2 text-xs font-bold transition disabled:opacity-40"
               style={{ backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text)" }}
             >
-              <ChevronLeft className="h-4 w-4" /> Previous
+              <ChevronLeft className="h-4 w-4" /> Prev
             </button>
-            <span className="px-4 text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-              Page {filters.page} of {totalPages}
-            </span>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => setFilters({ ...filters, page: pageNum })}
+                className={`h-9 min-w-9 px-3 rounded-2xl text-xs font-bold transition ${
+                  (filters.page || 1) === pageNum
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "border hover:bg-indigo-600 hover:text-white"
+                }`}
+                style={{
+                  backgroundColor: (filters.page || 1) === pageNum ? undefined : "var(--color-bg-card)",
+                  borderColor: "var(--color-border)",
+                  color: (filters.page || 1) === pageNum ? "#ffffff" : "var(--color-text)",
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+
             <button
-              disabled={filters.page === totalPages}
+              disabled={(filters.page || 1) >= totalPages}
               onClick={() => setFilters({ ...filters, page: (filters.page || 1) + 1 })}
-              className="flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium disabled:opacity-40"
+              className="flex items-center gap-1 rounded-2xl border px-3.5 py-2 text-xs font-bold transition disabled:opacity-40"
               style={{ backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text)" }}
             >
               Next <ChevronRight className="h-4 w-4" />

@@ -1,5 +1,6 @@
 import { prisma } from '../../../infrastructure/database/db.client.js';
 import { notificationsService } from '../../notifications/notifications.service.js';
+import bcrypt from 'bcrypt';
 
 export const adminService = {
   async getDashboardStats() {
@@ -134,6 +135,51 @@ export const adminService = {
     const res = await prisma.user.delete({ where: { id: userId } });
     await this.logAudit({ action: "USER_DELETED", entity: "User", entityId: userId });
     return res;
+  },
+
+  async createAdmin(data: { fullName: string; email: string; password?: string }) {
+    const existing = await prisma.user.findUnique({ where: { email: data.email } });
+    if (existing) {
+      throw new Error("User with this email already exists");
+    }
+    const passwordHash = await bcrypt.hash(data.password || "Admin@12345", 10);
+    const created = await prisma.user.create({
+      data: {
+        fullName: data.fullName,
+        email: data.email,
+        passwordHash,
+        role: "ADMIN" as any,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+    await this.logAudit({ action: "ADMIN_CREATED", entity: "User", entityId: created.id });
+    return created;
+  },
+
+  async updateUser(userId: string, data: { fullName?: string; email?: string; role?: string }) {
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.fullName && { fullName: data.fullName }),
+        ...(data.email && { email: data.email }),
+        ...(data.role && { role: data.role as any }),
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+    await this.logAudit({ action: "USER_UPDATED", entity: "User", entityId: userId });
+    return updated;
   },
 
   async bulkDeleteJobs(jobIds: string[]) {

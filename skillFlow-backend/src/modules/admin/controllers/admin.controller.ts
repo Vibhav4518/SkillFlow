@@ -19,6 +19,17 @@ export const adminController = {
     res.status(200).json({ success: true, message: 'User deleted successfully' });
   },
 
+  async createAdmin(req: AuthenticatedRequest, res: Response) {
+    const newAdmin = await adminService.createAdmin(req.body);
+    res.status(201).json({ success: true, message: 'Admin account created successfully', data: newAdmin });
+  },
+
+  async updateUser(req: AuthenticatedRequest, res: Response) {
+    const id = req.params.id as string;
+    const updated = await adminService.updateUser(id, req.body);
+    res.status(200).json({ success: true, message: 'User updated successfully', data: updated });
+  },
+
   async getCompanies(req: AuthenticatedRequest, res: Response) {
     const companies = await adminService.getCompanies(req.query as any);
     res.status(200).json({ success: true, data: companies });
