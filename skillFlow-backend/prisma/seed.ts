@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, Role, VerificationStatus, JobStatus, WorkType, ApplicationStatus } from "@prisma/client";
+import { PrismaClient, Role, VerificationStatus, JobStatus, WorkType, ApplicationStatus, ExperienceType } from "@prisma/client";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import path from "path";
@@ -557,12 +557,13 @@ async function seed() {
     data: [
       {
         candidateId: candidateProfile.id,
-        company: "TechCorp Labs",
-        title: "Full Stack Engineer",
-        startDate: "2022-07-01",
-        endDate: "2024-08-01",
-        isCurrent: false,
+        type: ExperienceType.JOB,
+        companyName: "TechCorp Labs",
+        designation: "Full Stack Engineer",
+        startDate: new Date("2022-07-01"),
+        endDate: new Date("2024-08-01"),
         description: "Built React dashboard applications, Node.js microservices, and PostgreSQL query optimizations.",
+        technologies: "React, Node.js, TypeScript, PostgreSQL",
       },
     ],
   });
