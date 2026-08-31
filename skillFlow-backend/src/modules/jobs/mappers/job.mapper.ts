@@ -105,41 +105,44 @@ export function toJobListItem(job: any): JobListItemDTO {
 // JOB DETAIL MAPPER
 // ============================================================
 
-export function toJobDetail(job: any): JobDetailDTO {
+export function toJobDetail(job: any): any {
   return {
+    ...job,
     id: job.id,
-
     slug: job.slug,
-
     title: job.title,
-
-    company: {
-      id: job.company.id,
-      name: job.company.name,
-      logoUrl: job.company.logoUrl ?? null,
-      location: job.company.location ?? null,
-    },
-
-    category: {
-      id: job.category.id,
-      name: job.category.name,
-    },
-
+    companyId: job.companyId || job.company?.id,
+    company: job.company
+      ? {
+          id: job.company.id,
+          name: job.company.name,
+          logoUrl: job.company.logoUrl ?? null,
+          location: job.company.location ?? null,
+          verificationStatus: job.company.verificationStatus ?? null,
+        }
+      : { id: job.companyId || "", name: "Company", logoUrl: null, location: null, verificationStatus: null },
+    category: job.category
+      ? {
+          id: job.category.id,
+          name: job.category.name,
+        }
+      : null,
+    workType: job.workType ?? "FULL_TIME",
+    jobType: job.jobType ?? "FULL_TIME",
     type: formatJobType(job.jobType),
-
     location: job.location,
-
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
     salary: formatSalary(job.salaryMin, job.salaryMax),
-
+    experienceMin: job.experienceMin,
+    experienceMax: job.experienceMax,
+    vacancies: job.vacancies ?? 1,
+    status: job.status,
     description: job.description,
-
     requirements: job.requirements ?? [],
-
     responsibilities: job.responsibilities ?? [],
-
-    skills: job.skills?.map((jobSkill: any) => jobSkill.skill.name) ?? [],
-    createdAt: job.createdAt.toISOString(),
-
-    updatedAt: job.updatedAt.toISOString(),
+    skills: job.skills?.map((jobSkill: any) => typeof jobSkill === "string" ? jobSkill : jobSkill.skill?.name || jobSkill.name).filter(Boolean) ?? [],
+    createdAt: job.createdAt ? job.createdAt.toISOString() : new Date().toISOString(),
+    updatedAt: job.updatedAt ? job.updatedAt.toISOString() : new Date().toISOString(),
   };
 }

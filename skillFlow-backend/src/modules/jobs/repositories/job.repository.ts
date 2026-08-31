@@ -46,7 +46,6 @@ export class JobRepository {
       where: {
         id: jobId,
         deletedAt: null,
-        status: "PUBLISHED",
       },
 
       include: {
