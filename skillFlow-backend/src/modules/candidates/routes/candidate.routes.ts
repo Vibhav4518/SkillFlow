@@ -77,10 +77,7 @@ candidateRouter.post("/resume/generate", candidateController.generateResumePdf);
 
 // --- My Applications ---
 candidateRouter.get("/applications", (req, res, next) => {
-  if (typeof candidateController.getMyApplications === "function") {
-    return candidateController.getMyApplications(req as any, res);
-  }
-  return next();
+  candidateController.getMyApplications(req as any, res).catch(next);
 });
 
 // --- Complete View Profile ---

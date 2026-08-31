@@ -7,6 +7,7 @@ import Image from "next/image";
 import { candidateApi } from "@/services/candidate.api";
 import { applicationApi } from "@/services/application.api";
 import { jobApi } from "@/services/job.api";
+import SkillAutocomplete from "@/components/SkillAutocomplete";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import {
@@ -728,70 +729,17 @@ export default function CandidateProfileContent() {
                 </h2>
               </div>
 
-              {/* Skill Tag Addition Input */}
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Type a new skill tag (e.g. React)..."
-                  value={newSkillInput}
-                  onChange={(e) => setNewSkillInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddSkill(newSkillInput);
-                    }
-                  }}
-                  className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleAddSkill(newSkillInput)}
-                  className="rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-indigo-500 transition"
-                >
-                  + Add Skill
-                </button>
-              </div>
-
-              {/* Suggestions */}
-              <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] text-slate-400">
-                <span className="font-semibold text-slate-500">Suggestions:</span>
-                {["React", "TypeScript", "Node.js", "Python", "SQL", "Docker", "AWS"].map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => handleAddSkill(s)}
-                    className="rounded-lg border border-slate-800 bg-slate-900/60 px-2 py-0.5 hover:border-indigo-500 hover:text-indigo-300 transition"
-                  >
-                    + {s}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                {profileData.skills.length === 0 ? (
-                  <p className="text-xs italic text-slate-400">No key skills added yet.</p>
-                ) : (
-                  profileData.skills.map((s: any, idx: number) => {
-                    const skillName = s.name || s;
-                    const skillId = s.id || s;
-                    return (
-                      <span
-                        key={idx}
-                        className="rounded-xl px-3.5 py-1.5 text-xs font-semibold border border-indigo-800/60 bg-indigo-950/40 text-indigo-300 flex items-center gap-2"
-                      >
-                        {skillName}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSkill(skillId, skillName)}
-                          className="hover:text-red-400 transition"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    );
-                  })
-                )}
-              </div>
+              <SkillAutocomplete
+                selectedSkills={profileData.skills.map((s: any) => typeof s === "string" ? s : (s.name || s.skill?.name || ""))}
+                onAddSkill={(skillName) => handleAddSkill(skillName)}
+                onRemoveSkill={(skillName) => {
+                  const sObj = profileData.skills.find((s: any) =>
+                    (s.name || s.skill?.name || s).toString().toLowerCase() === skillName.toLowerCase()
+                  );
+                  handleRemoveSkill(sObj?.id || skillName, skillName);
+                }}
+                placeholder="Search or type a skill (e.g. Java, Python, React)..."
+              />
             </div>
 
             {/* Card 4: Employment History */}

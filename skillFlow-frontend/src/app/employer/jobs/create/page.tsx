@@ -6,6 +6,7 @@ import Link from "next/link";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { jobApi } from "@/services/job.api";
 import { useToast } from "@/context/ToastContext";
+import SkillAutocomplete from "@/components/SkillAutocomplete";
 import { ArrowLeft, PlusCircle, ShieldAlert } from "lucide-react";
 
 function CreateJobContent() {
@@ -25,7 +26,7 @@ function CreateJobContent() {
     vacancies: 1,
   });
 
-  const [skillsInput, setSkillsInput] = useState("React, TypeScript, Node.js");
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(["React", "TypeScript", "Node.js"]);
   const [loading, setLoading] = useState(false);
   const [unverifiedNotice, setUnverifiedNotice] = useState(false);
 
@@ -40,7 +41,6 @@ function CreateJobContent() {
 
     try {
       setLoading(true);
-      const skillsArray = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
 
       const res = await jobApi.createJob({
         ...form,
@@ -49,7 +49,7 @@ function CreateJobContent() {
         experienceMin: Number(form.experienceMin) || 0,
         experienceMax: Number(form.experienceMax) || 0,
         vacancies: Number(form.vacancies) || 1,
-        skills: skillsArray,
+        skills: selectedSkills,
         status: targetStatus,
       });
 
@@ -221,15 +221,13 @@ function CreateJobContent() {
 
           <div>
             <label className="block text-xs font-semibold uppercase mb-1.5" style={{ color: "var(--color-text-muted)" }}>
-              Required Skills (Comma separated)
+              Required Skills
             </label>
-            <input
-              type="text"
-              value={skillsInput}
-              onChange={(e) => setSkillsInput(e.target.value)}
-              placeholder="e.g. React, TypeScript, GraphQL, AWS"
-              className="w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
-              style={inputStyle}
+            <SkillAutocomplete
+              selectedSkills={selectedSkills}
+              onAddSkill={(s) => setSelectedSkills((prev) => prev.includes(s) ? prev : [...prev, s])}
+              onRemoveSkill={(s) => setSelectedSkills((prev) => prev.filter((item) => item !== s))}
+              placeholder="Search or type required skills (e.g. Java, React, Docker)..."
             />
           </div>
 
