@@ -77,27 +77,23 @@ function formatSalary(
 // JOB LIST MAPPER
 // ============================================================
 
-export function toJobListItem(job: any): JobListItemDTO {
+export function toJobListItem(job: any): any {
   return {
+    ...job,
     id: job.id,
-
     slug: job.slug,
-
     time: formatRelativeTime(job.createdAt),
-
     title: job.title,
-
-    company: job.company?.name ?? "",
-
+    company: job.company?.name ?? "Company",
+    companyId: job.companyId || job.company?.id,
+    companyLogo: job.company?.logoUrl ?? null,
     category: job.category?.name ?? "",
-
     type: formatJobType(job.jobType),
-
     salary: formatSalary(job.salaryMin, job.salaryMax) ?? "Not specified",
-
     location: job.location,
-
     image: job.company?.logoUrl ?? null,
+    applicationsCount: job._count?.applications ?? 0,
+    createdAt: job.createdAt ? job.createdAt.toISOString() : new Date().toISOString(),
   };
 }
 

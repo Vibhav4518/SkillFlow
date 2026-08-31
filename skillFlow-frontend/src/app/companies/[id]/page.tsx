@@ -46,17 +46,25 @@ export default function PublicCompanyProfilePage() {
       setLoading(true);
       const [compRes, jobsRes, revRes] = await Promise.all([
         companyApi.getCompany(companyId),
-        jobApi.getJobs({ limit: 50 }),
+        jobApi.getJobs({ companyId, limit: 100 }),
         companyApi.getReviews(companyId),
       ]);
 
+      let foundJobs: any[] = [];
       if (compRes?.success && compRes?.data) {
         setCompany(compRes.data);
+        if (Array.isArray(compRes.data.jobs)) {
+          foundJobs = compRes.data.jobs;
+        }
       }
       if (jobsRes?.success && jobsRes?.data) {
-        const allJobs = Array.isArray(jobsRes.data) ? jobsRes.data : jobsRes.data.jobs || [];
-        setJobs(allJobs.filter((j: any) => j.companyId === companyId || j.company?.id === companyId));
+        const fetchedJobs = Array.isArray(jobsRes.data) ? jobsRes.data : jobsRes.data.jobs || jobsRes.data.items || [];
+        if (fetchedJobs.length > 0) {
+          foundJobs = fetchedJobs;
+        }
       }
+      setJobs(foundJobs);
+
       if (revRes?.success && revRes?.data) {
         setReviewsData(revRes.data);
       }

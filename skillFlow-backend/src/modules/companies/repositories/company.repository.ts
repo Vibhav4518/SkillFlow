@@ -68,6 +68,16 @@ export class CompanyRepository implements ICompanyRepository {
     }
     const company = await prisma.company.findFirst({
       where: { id: companyId, deletedAt: null },
+      include: {
+        jobs: {
+          where: { deletedAt: null, status: 'PUBLISHED' },
+          include: {
+            company: true,
+            skills: { include: { skill: true } }
+          },
+          orderBy: { createdAt: 'desc' }
+        }
+      }
     });
     return company as unknown as CompanyEntity | null;
   }

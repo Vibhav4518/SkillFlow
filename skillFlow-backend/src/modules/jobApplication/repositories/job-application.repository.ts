@@ -237,8 +237,13 @@ export class JobApplicationRepository {
     }
 
     try {
+      const candidateProfile = await prisma.candidateProfile.findFirst({
+        where: { OR: [{ id: candidateId }, { userId: candidateId }] },
+      });
+      const targetId = candidateProfile?.id || candidateId;
+
       const where: Prisma.JobApplicationWhereInput = {
-        candidateId,
+        candidateId: targetId,
       };
       if (filters?.status) {
         const pStatus = toPrismaStatus(filters.status);

@@ -260,6 +260,10 @@ export class JobRepository {
       where.categoryId = categoryId;
     }
 
+    if ((query as any).companyId || (query as any).company) {
+      where.companyId = (query as any).companyId || (query as any).company;
+    }
+
     const orderBy: any =
       sortBy === "salary"
         ? { salaryMax: "desc" }
