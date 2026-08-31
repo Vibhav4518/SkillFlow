@@ -1,7 +1,7 @@
 import { apiFetch } from '@/lib/api';
 
 export const applicationApi = {
-  async applyToJob(data: { jobId: string; coverLetter?: string }) {
+  async applyToJob(data: { jobId: string; coverLetter?: string; resumeUrl?: string; resume?: string }) {
     return apiFetch('/job-applications', { method: 'POST', body: data });
   },
 

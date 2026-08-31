@@ -78,4 +78,25 @@ export const adminApi = {
     if (params.search) query.append('search', params.search);
     return apiFetch(`/admin/audit-logs?${query.toString()}`);
   },
+
+  async getSkills(params: { page?: number; limit?: number; search?: string } = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.append('page', params.page.toString());
+    if (params.limit) query.append('limit', params.limit.toString());
+    if (params.search) query.append('search', params.search);
+    return apiFetch(`/admin/skills?${query.toString()}`);
+  },
+
+  async createSkill(name: string) {
+    return apiFetch('/admin/skills', { method: 'POST', body: { name } });
+  },
+
+  async updateSkill(id: string, name: string) {
+    return apiFetch(`/admin/skills/${id}`, { method: 'PUT', body: { name } });
+  },
+
+  async deleteSkill(id: string) {
+    return apiFetch(`/admin/skills/${id}`, { method: 'DELETE' });
+  },
 };
+

@@ -26,4 +26,10 @@ router.patch('/applications/:id/status', adminController.updateApplicationStatus
 
 router.get('/audit-logs', adminController.getAuditLogs);
 
+router.get('/skills', adminController.getSkills);
+router.post('/skills', adminController.createSkill);
+router.put('/skills/:id', adminController.updateSkill);
+router.delete('/skills/:id', adminController.deleteSkill);
+
 export const adminRoutes = router;
+

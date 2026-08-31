@@ -6,7 +6,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { adminApi } from "@/services/admin.api";
 import {
   Users, Briefcase, Building2, MessageSquare,
-  ListCheck, ShieldCheck, FileCheck2
+  ListCheck, ShieldCheck, FileCheck2, Code2
 } from "lucide-react";
 
 function StatCard({ label, value, icon: Icon, iconColor, loading, sub }: any) {
@@ -44,6 +44,7 @@ function AdminDashboardContent() {
 
   const navCards = [
     { href: "/admin/users", label: "User Management", Icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+    { href: "/admin/skills", label: "Skills Directory", Icon: Code2, color: "text-violet-600", bg: "bg-violet-50" },
     { href: "/admin/companies", label: "Company Verifications", Icon: Building2, color: "text-indigo-600", bg: "bg-indigo-50" },
     { href: "/admin/jobs", label: "Jobs Moderation", Icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50" },
     { href: "/admin/applications", label: "Applications", Icon: FileCheck2, color: "text-cyan-600", bg: "bg-cyan-50" },

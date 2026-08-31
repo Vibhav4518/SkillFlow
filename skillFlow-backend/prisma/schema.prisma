@@ -278,6 +278,7 @@ model JobApplication {
   appliedAt       DateTime                   @default(now())
   candidateId     String
   coverLetter     String?
+  resumeUrl       String?
   jobId           String
   statusUpdatedAt DateTime?
   updatedAt       DateTime                   @updatedAt

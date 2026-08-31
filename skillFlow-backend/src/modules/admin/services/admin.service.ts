@@ -368,5 +368,62 @@ export const adminService = {
     ]);
 
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+  },
+
+  async getSkills(query: { page?: number; limit?: number; search?: string }) {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (query.search) {
+      where.name = { contains: query.search, mode: 'insensitive' };
+    }
+
+    const [items, total] = await Promise.all([
+      prisma.skill.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { name: 'asc' },
+        include: {
+          _count: {
+            select: { candidateSkills: true, jobSkills: true },
+          },
+        },
+      }),
+      prisma.skill.count({ where }),
+    ]);
+
+    return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+  },
+
+  async createSkill(name: string) {
+    const trimmed = name.trim();
+    const existing = await prisma.skill.findFirst({
+      where: { name: { equals: trimmed, mode: 'insensitive' } },
+    });
+    if (existing) return existing;
+
+    const created = await prisma.skill.create({ data: { name: trimmed } });
+    await this.logAudit({ action: "SKILL_CREATED", entity: "Skill", entityId: created.id });
+    return created;
+  },
+
+  async updateSkill(id: string, name: string) {
+    const trimmed = name.trim();
+    const updated = await prisma.skill.update({
+      where: { id },
+      data: { name: trimmed },
+    });
+    await this.logAudit({ action: "SKILL_UPDATED", entity: "Skill", entityId: id });
+    return updated;
+  },
+
+  async deleteSkill(id: string) {
+    const deleted = await prisma.skill.delete({ where: { id } });
+    await this.logAudit({ action: "SKILL_DELETED", entity: "Skill", entityId: id });
+    return deleted;
   }
 };
+
