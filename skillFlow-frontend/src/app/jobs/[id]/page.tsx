@@ -63,6 +63,7 @@ export default function JobDetailPage() {
   // Apply Modal
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
+  const [customResumeUrl, setCustomResumeUrl] = useState("");
   const [applying, setApplying] = useState(false);
 
   const fetchJobData = useCallback(async () => {
@@ -157,9 +158,12 @@ export default function JobDetailPage() {
 
     try {
       setApplying(true);
+      const chosenResume = customResumeUrl || candidateProfile?.resumeUrl || candidateProfile?.resume?.url;
       const res = await applicationApi.applyToJob({
         jobId,
         coverLetter,
+        resumeUrl: chosenResume,
+        resume: chosenResume,
       });
 
       if (res.success) {

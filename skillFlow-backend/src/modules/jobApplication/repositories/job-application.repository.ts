@@ -44,6 +44,14 @@ const defaultInclude = {
       phone: true,
       location: true,
       profilePhotoUrl: true,
+      resumeUrl: true,
+      resume: {
+        select: {
+          id: true,
+          url: true,
+          fileName: true,
+        },
+      },
       user: {
         select: {
           id: true,
@@ -93,6 +101,7 @@ export class JobApplicationRepository {
           jobId: data.jobId,
           candidateId: data.candidateId!,
           coverLetter: data.coverLetter || null,
+          resumeUrl: data.resume || (data as any).resumeUrl || null,
           status: ApplicationStatus.APPLIED,
           appliedAt: new Date(),
           updatedAt: new Date(),

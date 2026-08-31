@@ -7,7 +7,7 @@ import { jobApi } from "@/services/job.api";
 import { applicationApi } from "@/services/application.api";
 import { bookmarkApi } from "@/services/bookmark.api";
 import { useToast } from "@/context/ToastContext";
-import { Users, ArrowLeft, Bookmark } from "lucide-react";
+import { Users, ArrowLeft, Bookmark, User, FileText } from "lucide-react";
 
 const STATUS_LABELS: Record<string, string> = {
   APPLIED: "Applied",
@@ -234,8 +234,23 @@ function EmployerApplicationsContent() {
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleToggleSelect(app.id)}
-                      className="mt-1.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      className="mt-3 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
+
+                    {/* Candidate Photo */}
+                    <div className="h-12 w-12 rounded-full overflow-hidden shrink-0 border border-slate-700 bg-slate-800 flex items-center justify-center">
+                      {app.candidate?.profilePhotoUrl ? (
+                        <img
+                          src={app.candidate.profilePhotoUrl}
+                          alt={candName}
+                          className="h-full w-full object-cover"
+                          onError={(e) => { (e.target as any).onerror = null; (e.target as any).src = '/images/profileIcon.png'; }}
+                        />
+                      ) : (
+                        <User className="h-6 w-6 text-slate-400" />
+                      )}
+                    </div>
+
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                       <span className={`rounded-full px-3 py-1 text-xs font-bold border ${STATUS_BADGE[app.status] || STATUS_BADGE.APPLIED}`}>
@@ -258,6 +273,17 @@ function EmployerApplicationsContent() {
                       >
                         <Bookmark className="h-4 w-4" fill={isBookmarked ? "currentColor" : "none"} />
                       </button>
+
+                      {(app.resumeUrl || app.resume || app.candidate?.resumeUrl || app.candidate?.resume?.url) && (
+                        <a
+                          href={app.resumeUrl || app.resume || app.candidate?.resumeUrl || app.candidate?.resume?.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition shadow-sm"
+                        >
+                          <FileText className="h-3.5 w-3.5" /> View Resume
+                        </a>
+                      )}
                     </div>
 
                     <p className="text-xs font-medium mt-0.5" style={{ color: "var(--color-text-muted)" }}>

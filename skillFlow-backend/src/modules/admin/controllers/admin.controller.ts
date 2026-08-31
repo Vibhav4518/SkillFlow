@@ -83,5 +83,36 @@ export const adminController = {
   async getAuditLogs(req: AuthenticatedRequest, res: Response) {
     const logs = await adminService.getAuditLogs(req.query as any);
     res.status(200).json({ success: true, data: logs });
+  },
+
+  async getSkills(req: AuthenticatedRequest, res: Response) {
+    const skills = await adminService.getSkills(req.query as any);
+    res.status(200).json({ success: true, data: skills });
+  },
+
+  async createSkill(req: AuthenticatedRequest, res: Response) {
+    const { name } = req.body;
+    if (!name || typeof name !== 'string') {
+      return res.status(400).json({ success: false, message: 'Skill name is required' });
+    }
+    const skill = await adminService.createSkill(name);
+    res.status(201).json({ success: true, message: 'Skill created successfully', data: skill });
+  },
+
+  async updateSkill(req: AuthenticatedRequest, res: Response) {
+    const id = req.params.id as string;
+    const { name } = req.body;
+    if (!name || typeof name !== 'string') {
+      return res.status(400).json({ success: false, message: 'Skill name is required' });
+    }
+    const skill = await adminService.updateSkill(id, name);
+    res.status(200).json({ success: true, message: 'Skill updated successfully', data: skill });
+  },
+
+  async deleteSkill(req: AuthenticatedRequest, res: Response) {
+    const id = req.params.id as string;
+    await adminService.deleteSkill(id);
+    res.status(200).json({ success: true, message: 'Skill deleted successfully' });
   }
 };
+

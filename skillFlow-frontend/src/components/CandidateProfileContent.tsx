@@ -144,15 +144,15 @@ export default function CandidateProfileContent() {
       const res = await candidateApi.updateProfile({ skills: updatedSkills });
       if (res?.success) {
         toast.success(`Skill "${trimmed}" added!`);
-        loadAllData();
+        loadAllData(true);
       } else {
         await candidateApi.addSkill(trimmed);
         toast.success(`Skill "${trimmed}" added!`);
-        loadAllData();
+        loadAllData(true);
       }
     } catch {
       toast.error("Failed to add skill tag.");
-      loadAllData();
+      loadAllData(true);
     }
   };
 
@@ -167,21 +167,21 @@ export default function CandidateProfileContent() {
       const res = await candidateApi.updateProfile({ skills: updatedSkills });
       if (res?.success) {
         toast.success("Skill tag removed.");
-        loadAllData();
+        loadAllData(true);
       } else if (skillId) {
         await candidateApi.deleteSkill(skillId);
         toast.success("Skill tag removed.");
-        loadAllData();
+        loadAllData(true);
       }
     } catch {
       toast.error("Failed to remove skill tag.");
-      loadAllData();
+      loadAllData(true);
     }
   };
 
-  const loadAllData = useCallback(async () => {
+  const loadAllData = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const [profRes, appRes, jobsRes] = await Promise.allSettled([
         candidateApi.getProfile(),
         applicationApi.getCandidateApplications(),
@@ -208,6 +208,8 @@ export default function CandidateProfileContent() {
           location: basic.location || "",
           summary: basic.summary || "",
           preferredWorkType: basic.preferredWorkType || "HYBRID",
+          profilePhotoUrl: basic.profilePhotoUrl || "",
+          resumeUrl: basic.resumeUrl || d.resume?.url || "",
           linkedinUrl: basic.linkedinUrl || "",
           githubUrl: basic.githubUrl || "",
           portfolioUrl: basic.portfolioUrl || "",
@@ -225,7 +227,7 @@ export default function CandidateProfileContent() {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [user]);
 
@@ -511,7 +513,7 @@ export default function CandidateProfileContent() {
                   className="absolute inset-2 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 flex items-center justify-center cursor-pointer bg-slate-100 dark:bg-slate-800"
                 >
                   {basic.profilePhotoUrl ? (
-                    <Image src={basic.profilePhotoUrl} alt="User Avatar" width={110} height={110} className="object-cover h-full w-full rounded-full" unoptimized />
+                    <img src={basic.profilePhotoUrl} alt="User Avatar" className="object-cover h-full w-full rounded-full" onError={(e) => { (e.target as any).onerror = null; (e.target as any).src = '/images/profileIcon.png'; }} />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-slate-500 hover:text-indigo-600">
                       <User className="h-12 w-12" />
@@ -1476,17 +1478,40 @@ export default function CandidateProfileContent() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1">Preferred Work Type</label>
+                  <select
+                    value={basicForm.preferredWorkType}
+                    onChange={(e) => setBasicForm({ ...basicForm, preferredWorkType: e.target.value })}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white"
+                  >
+                    <option value="REMOTE">Remote</option>
+                    <option value="ONSITE">Onsite</option>
+                    <option value="HYBRID">Hybrid</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1">Profile Photo / Image URL</label>
+                  <input
+                    type="url"
+                    value={basicForm.profilePhotoUrl || ""}
+                    onChange={(e) => setBasicForm({ ...basicForm, profilePhotoUrl: e.target.value })}
+                    placeholder="https://example.com/avatar.jpg"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Preferred Work Type</label>
-                <select
-                  value={basicForm.preferredWorkType}
-                  onChange={(e) => setBasicForm({ ...basicForm, preferredWorkType: e.target.value })}
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Resume URL / Link</label>
+                <input
+                  type="url"
+                  value={basicForm.resumeUrl || ""}
+                  onChange={(e) => setBasicForm({ ...basicForm, resumeUrl: e.target.value })}
+                  placeholder="https://example.com/resume.pdf"
                   className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white"
-                >
-                  <option value="REMOTE">Remote</option>
-                  <option value="ONSITE">Onsite</option>
-                  <option value="HYBRID">Hybrid</option>
-                </select>
+                />
               </div>
 
               <div>
