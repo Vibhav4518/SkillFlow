@@ -8,6 +8,7 @@ export interface JobFilterParams {
   workType?: string;
   jobType?: string;
   categoryId?: string;
+  companyId?: string;
   sortBy?: string;
 }
 
@@ -21,6 +22,7 @@ export const jobApi = {
     if (params.workType) query.append('workType', params.workType);
     if (params.jobType) query.append('jobType', params.jobType);
     if (params.categoryId) query.append('categoryId', params.categoryId);
+    if (params.companyId) query.append('companyId', params.companyId);
     if (params.sortBy) query.append('sortBy', params.sortBy);
     return apiFetch(`/jobs?${query.toString()}`, { skipAuth: true });
   },
