@@ -130,24 +130,31 @@ export default function CandidateProfileContent() {
   const [newSkillInput, setNewSkillInput] = useState("");
 
   const handleAddSkill = async (skillName: string) => {
+    if (!skillName || !skillName.trim()) return;
     const trimmed = skillName.trim();
-    if (!trimmed) return;
-    if (profileData.skills.some((s: any) => (s.name || s).toLowerCase() === trimmed.toLowerCase())) {
-      toast.info(`"${trimmed}" is already in your key skills list.`);
-      setNewSkillInput("");
+    const exists = profileData.skills.some(
+      (s: any) => (s.name || s.skill?.name || s).toString().toLowerCase() === trimmed.toLowerCase()
+    );
+    if (exists) {
+      toast.error(`Skill "${trimmed}" is already added.`);
       return;
     }
-    const updatedSkills = [...profileData.skills.map((s: any) => s.name || s), trimmed];
-    setProfileData((prev: any) => ({ ...prev, skills: updatedSkills }));
+
+    setProfileData((prev: any) => ({
+      ...prev,
+      skills: [...prev.skills, { id: trimmed, name: trimmed }],
+    }));
     setNewSkillInput("");
 
     try {
-      const res = await candidateApi.updateProfile({ skills: updatedSkills });
+      const res = await candidateApi.addSkill(trimmed);
       if (res?.success) {
         toast.success(`Skill "${trimmed}" added!`);
         loadAllData(true);
       } else {
-        await candidateApi.addSkill(trimmed);
+        await candidateApi.updateProfile({
+          skills: [...profileData.skills.map((s: any) => s.name || s), trimmed],
+        });
         toast.success(`Skill "${trimmed}" added!`);
         loadAllData(true);
       }
@@ -158,25 +165,34 @@ export default function CandidateProfileContent() {
   };
 
   const handleRemoveSkill = async (skillId: string, skillName: string) => {
-    const updatedSkills = profileData.skills
-      .filter((s: any) => (s.id ? s.id !== skillId : s !== skillName && s.name !== skillName))
-      .map((s: any) => s.name || s);
-
-    setProfileData((prev: any) => ({ ...prev, skills: updatedSkills }));
+    const targetIdentifier = skillId || skillName;
+    setProfileData((prev: any) => ({
+      ...prev,
+      skills: prev.skills.filter(
+        (s: any) =>
+          (s.id || s.name || s.skill?.name || s).toString().toLowerCase() !== targetIdentifier.toLowerCase()
+      ),
+    }));
 
     try {
-      const res = await candidateApi.updateProfile({ skills: updatedSkills });
-      if (res?.success) {
-        toast.success("Skill tag removed.");
+      await candidateApi.deleteSkill(targetIdentifier);
+      toast.success(`Skill "${skillName}" removed.`);
+      loadAllData(true);
+    } catch {
+      try {
+        const remainingNames = profileData.skills
+          .filter(
+            (s: any) =>
+              (s.id || s.name || s.skill?.name || s).toString().toLowerCase() !== targetIdentifier.toLowerCase()
+          )
+          .map((s: any) => s.name || s.skill?.name || s);
+        await candidateApi.updateProfile({ skills: remainingNames });
+        toast.success(`Skill "${skillName}" removed.`);
         loadAllData(true);
-      } else if (skillId) {
-        await candidateApi.deleteSkill(skillId);
-        toast.success("Skill tag removed.");
+      } catch {
+        toast.error("Failed to remove skill tag.");
         loadAllData(true);
       }
-    } catch {
-      toast.error("Failed to remove skill tag.");
-      loadAllData(true);
     }
   };
 
