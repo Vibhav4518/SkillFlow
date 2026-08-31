@@ -242,14 +242,35 @@ export class JobRepository {
     }
 
     if (search) {
+      const sTerm = search.trim();
       where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
+        { title: { contains: sTerm, mode: "insensitive" } },
+        { description: { contains: sTerm, mode: "insensitive" } },
+        { location: { contains: sTerm, mode: "insensitive" } },
+        { company: { name: { contains: sTerm, mode: "insensitive" } } },
+        { company: { location: { contains: sTerm, mode: "insensitive" } } },
       ];
     }
 
     if (location) {
-      where.location = { contains: location, mode: "insensitive" };
+      const locTerm = location.trim();
+      if (where.OR) {
+        where.AND = [
+          { OR: where.OR },
+          {
+            OR: [
+              { location: { contains: locTerm, mode: "insensitive" } },
+              { company: { location: { contains: locTerm, mode: "insensitive" } } },
+            ],
+          },
+        ];
+        delete where.OR;
+      } else {
+        where.OR = [
+          { location: { contains: locTerm, mode: "insensitive" } },
+          { company: { location: { contains: locTerm, mode: "insensitive" } } },
+        ];
+      }
     }
 
     if (workType) {

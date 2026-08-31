@@ -11,10 +11,7 @@ import { Users, ArrowLeft, Bookmark, User, FileText, Trash2, Search } from "luci
 
 const STATUS_LABELS: Record<string, string> = {
   APPLIED: "Applied",
-  IN_PROGRESS: "In Progress",
-  SHORTLISTED: "Shortlisted",
-  INTERVIEW: "Interview",
-  SELECTED: "Selected (Hire)",
+  SELECTED: "Selected (Hired)",
   REJECTED: "Rejected",
   WITHDRAWN: "Withdrawn",
 };

@@ -259,7 +259,7 @@ export class JobApplicationService {
       }
     }
 
-    const validStatuses = ["APPLIED", "IN_PROGRESS", "SHORTLISTED", "INTERVIEW", "REJECTED", "SELECTED", "WITHDRAWN"];
+    const validStatuses = ["APPLIED", "SELECTED", "REJECTED", "WITHDRAWN"];
     const normalizedStatus = status.toUpperCase();
     if (!validStatuses.includes(normalizedStatus)) {
       throw new BadRequestError(`Invalid application status: ${status}. Must be one of ${validStatuses.join(", ")}`);
@@ -276,9 +276,7 @@ export class JobApplicationService {
       });
       if (candidateProfile?.userId) {
         const statusMessages: Record<string, string> = {
-          IN_PROGRESS: "Your application is now being reviewed.",
-          SHORTLISTED: "Congratulations! You have been shortlisted.",
-          INTERVIEW: "You have been invited for an interview.",
+          APPLIED: "Your application has been received.",
           SELECTED: "Congratulations! You have been selected!",
           REJECTED: "Your application was not selected this time.",
           WITHDRAWN: "Your application has been withdrawn.",

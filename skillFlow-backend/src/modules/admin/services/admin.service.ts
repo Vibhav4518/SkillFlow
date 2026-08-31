@@ -227,7 +227,7 @@ export const adminService = {
 
   async verifyCompany(id: string, status: any, rejectionReason?: string) {
     const normStatus = String(status).toUpperCase();
-    const targetStatus = normStatus === "APPROVED" ? "APPROVED" : normStatus === "VERIFIED" ? "VERIFIED" : normStatus === "SUSPENDED" ? "SUSPENDED" : normStatus === "REJECTED" ? "REJECTED" : "PENDING";
+    const targetStatus = (normStatus === "APPROVED" || normStatus === "VERIFIED") ? "VERIFIED" : normStatus === "SUSPENDED" ? "SUSPENDED" : normStatus === "REJECTED" ? "REJECTED" : "PENDING";
     const updated = await prisma.company.update({
       where: { id },
       data: {

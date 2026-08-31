@@ -5,7 +5,7 @@ import Link from "next/link";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { adminApi } from "@/services/admin.api";
 import { useToast } from "@/context/ToastContext";
-import { Building2, ArrowLeft, Trash2, CheckCircle2, XCircle } from "lucide-react";
+import { Building2, ArrowLeft, Trash2, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
 
 function AdminCompaniesContent() {
   const toast = useToast();
@@ -57,7 +57,7 @@ function AdminCompaniesContent() {
         );
         setSelectedIds([]);
       } catch {
-        toast.error("Failed to bulk verify companies.");
+        toast.error("Failed to bulk update company verification.");
       }
     }
   };
@@ -93,7 +93,7 @@ function AdminCompaniesContent() {
     }
   };
 
-  const handleVerify = async (id: string, status: 'APPROVED' | 'VERIFIED' | 'REJECTED' | 'SUSPENDED') => {
+  const handleVerify = async (id: string, status: 'VERIFIED' | 'REJECTED') => {
     let reason: string | undefined = undefined;
     if (status === 'REJECTED') {
       const input = prompt("Reason for rejection (optional):");
@@ -115,11 +115,11 @@ function AdminCompaniesContent() {
     <div className="min-h-screen py-10" style={{ backgroundColor: "var(--color-bg)" }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <Link href="/admin/dashboard" className="text-xs font-semibold inline-flex items-center gap-1 mb-2 hover:opacity-80" style={{ color: "var(--color-text-muted)" }}>
+          <Link href="/admin/dashboard" className="text-xs font-semibold inline-flex items-center gap-1 mb-2 hover:opacity-80 transition" style={{ color: "var(--color-text-muted)" }}>
             <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
           </Link>
           <h1 className="text-2xl sm:text-3xl font-extrabold" style={{ color: "var(--color-text)" }}>Company Verifications &amp; Management</h1>
-          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Moderate enterprise legitimacy, approve verifications, and delete unwanted company profiles</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Moderate enterprise legitimacy, set verification status (VERIFIED / REJECTED), and inspect company applications</p>
         </div>
 
         {/* Multi-Select Toolbar */}
@@ -141,7 +141,7 @@ function AdminCompaniesContent() {
                   onClick={() => handleBulkVerify("VERIFIED")}
                   className="rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-sm"
                 >
-                  Approve ({selectedIds.length})
+                  Verify ({selectedIds.length})
                 </button>
                 <button
                   onClick={() => handleBulkVerify("REJECTED")}
@@ -165,7 +165,7 @@ function AdminCompaniesContent() {
             <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-indigo-600 border-t-transparent" />
           </div>
         ) : companies.length === 0 ? (
-          <div className="rounded-3xl border p-12 text-center" style={{ backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }}>
+          <div className="rounded-3xl border p-12 text-center shadow-sm" style={{ backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }}>
             <Building2 className="h-10 w-10 mx-auto mb-3 text-slate-400" />
             <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>No companies found.</p>
           </div>
@@ -175,8 +175,8 @@ function AdminCompaniesContent() {
               <thead className="border-b font-semibold uppercase" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-muted)", color: "var(--color-text-muted)" }}>
                 <tr>
                   <th className="px-4 py-4 w-10">Select</th>
-                  <th className="px-6 py-4">Company Name</th>
-                  <th className="px-6 py-4">Location &amp; Site</th>
+                  <th className="px-6 py-4">Company Name (Click to Open Detail)</th>
+                  <th className="px-6 py-4">Location &amp; Website</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
@@ -184,6 +184,8 @@ function AdminCompaniesContent() {
               <tbody>
                 {companies.map((c) => {
                   const isSelected = selectedIds.includes(c.id);
+                  const status = c.verificationStatus === "APPROVED" ? "VERIFIED" : (c.verificationStatus || "PENDING");
+
                   return (
                     <tr key={c.id} className={`border-b transition ${isSelected ? "bg-indigo-50/20 dark:bg-indigo-950/20" : "hover:opacity-80"}`} style={{ borderColor: "var(--color-border)" }}>
                       <td className="px-4 py-4">
@@ -194,33 +196,48 @@ function AdminCompaniesContent() {
                           className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         />
                       </td>
-                      <td className="px-6 py-4 font-bold text-sm" style={{ color: "var(--color-text)" }}>
-                        {c.name}
+                      <td className="px-6 py-4">
+                        <Link
+                          href={`/companies/${c.id}`}
+                          className="font-bold text-sm text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1.5"
+                          title="Click to view company profile & applications"
+                        >
+                          <span>{c.name}</span>
+                          <ExternalLink className="h-3.5 w-3.5 opacity-70 shrink-0" />
+                        </Link>
+                        {c._count?.jobs !== undefined && (
+                          <span className="text-[11px] block mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                            {c._count.jobs} posted jobs
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4" style={{ color: "var(--color-text-muted)" }}>
-                        <p>{c.location || "Location not set"}</p>
-                        <p className="text-blue-600 dark:text-blue-400">{c.websiteUrl}</p>
+                        <p className="font-medium">{c.location || "Location not specified"}</p>
+                        {c.websiteUrl && (
+                          <a href={c.websiteUrl} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline truncate block">
+                            {c.websiteUrl}
+                          </a>
+                        )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`rounded-full px-2.5 py-0.5 font-bold ${
-                          c.verificationStatus === "APPROVED" || c.verificationStatus === "VERIFIED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" :
-                          c.verificationStatus === "REJECTED" ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400" :
-                          c.verificationStatus === "SUSPENDED" ? "bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400" :
-                          "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+                        <span className={`rounded-full px-2.5 py-0.5 font-bold text-xs uppercase ${
+                          status === "VERIFIED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" :
+                          status === "REJECTED" ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400 border border-red-200 dark:border-red-800" :
+                          "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
                         }`}>
-                          {c.verificationStatus}
+                          {status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right space-x-1.5">
                         <button
-                          onClick={() => handleVerify(c.id, "APPROVED")}
-                          className="rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 font-bold hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900 transition text-[11px]"
+                          onClick={() => handleVerify(c.id, "VERIFIED")}
+                          className="rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 font-bold hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900 transition text-[11px]"
                         >
-                          Approve
+                          Verify
                         </button>
                         <button
                           onClick={() => handleVerify(c.id, "REJECTED")}
-                          className="rounded-lg bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 font-bold hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900 transition text-[11px]"
+                          className="rounded-lg bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 font-bold hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900 transition text-[11px]"
                         >
                           Reject
                         </button>

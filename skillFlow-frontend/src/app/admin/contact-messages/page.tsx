@@ -279,7 +279,12 @@ function AdminContactContent() {
               return (
                 <div
                   key={m.id}
-                  className={`rounded-3xl border p-6 sm:p-7 shadow-sm flex flex-col lg:flex-row lg:items-start justify-between gap-6 transition ${
+                  onClick={() => {
+                    if (m.status === "NEW") {
+                      handleStatus(m.id, "READ", senderName);
+                    }
+                  }}
+                  className={`rounded-3xl border p-6 sm:p-7 shadow-sm flex flex-col lg:flex-row lg:items-start justify-between gap-6 transition cursor-pointer ${
                     isSelected ? "border-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/20" : ""
                   }`}
                   style={{ backgroundColor: isSelected ? undefined : "var(--color-bg-card)", borderColor: isSelected ? undefined : "var(--color-border)" }}
