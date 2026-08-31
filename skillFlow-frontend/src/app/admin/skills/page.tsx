@@ -203,7 +203,7 @@ function AdminSkillsContent() {
           {loading ? (
             <div className="p-12 text-center text-xs text-slate-400">Loading skills directory...</div>
           ) : skills.length === 0 ? (
-            <div className="p-12 text-center text-xs text-slate-400">No skills found. Click "Add New Skill" to create one.</div>
+            <div className="p-12 text-center text-xs text-slate-400">No skills found. Click &quot;Add New Skill&quot; to create one.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
