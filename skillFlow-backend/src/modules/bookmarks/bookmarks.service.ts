@@ -1,4 +1,4 @@
-import { prisma } from "../../infrastructure/database/lib/prisma.js";
+import { prisma } from "../../infrastructure/database/db.client.js";
 
 export const bookmarksService = {
   async getUserBookmarks(userId: string, role?: string) {

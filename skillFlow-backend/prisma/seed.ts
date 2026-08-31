@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Role, VerificationStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import path from "path";
@@ -26,7 +26,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function seed() {
-  console.log("🌱 Resetting database and seeding ONLY Admin Account...");
+  console.log("🌱 Resetting database and seeding EXACTLY: 1 Admin, 1 Company, 1 Employer, 1 Candidate...");
 
   // 1. Clean existing data in reverse relation order
   try { await prisma.jobApplication.deleteMany({}); } catch {}
@@ -48,12 +48,14 @@ async function seed() {
   try { await prisma.user.deleteMany({}); } catch {}
   try { await prisma.skill.deleteMany({}); } catch {}
 
-  console.log("🧹 Database wiped clean.");
+  console.log("🧹 Database wiped completely clean.");
 
-  // Password hash for admin
+  // Password hashes
   const adminPassword = await bcrypt.hash("Admin@12345", 10);
+  const employerPassword = await bcrypt.hash("Employer@12345", 10);
+  const candidatePassword = await bcrypt.hash("Candidate@12345", 10);
 
-  // 2. Seed ONLY Superadmin Account
+  // 2. Create 1 Admin
   const adminUser = await prisma.user.create({
     data: {
       email: "admin@skillflow.com",
@@ -62,31 +64,63 @@ async function seed() {
       role: Role.ADMIN,
     },
   });
-  console.log(`✅ Admin Account Seeded: ${adminUser.email} (Password: Admin@12345)`);
+  console.log(`✅ Seeded 1 Admin: ${adminUser.email} (Password: Admin@12345)`);
 
-  // 3. Seed Master Skills Catalog for Autocomplete
-  const masterSkills = [
-    "Java", "JavaScript", "TypeScript", "Python", "C", "C++", "C#", "Go", "Rust", "PHP", "Ruby", "Kotlin", "Swift", "Dart", "Scala",
-    "HTML", "CSS", "React", "Next.js", "Angular", "Vue.js", "Redux", "Tailwind CSS", "Bootstrap", "Material UI",
-    "Node.js", "Express.js", "Spring Boot", "Django", "Flask", "FastAPI", ".NET", "Laravel", "REST API", "GraphQL", "Microservices",
-    "MySQL", "PostgreSQL", "MongoDB", "Redis", "SQLite", "Oracle", "SQL Server", "Elasticsearch", "Firebase",
-    "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "Jenkins", "GitHub Actions", "Terraform", "Ansible", "CI/CD", "Linux", "Nginx",
-    "Machine Learning", "Deep Learning", "Artificial Intelligence", "Data Science", "Data Analysis", "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "PyTorch", "NLP", "Computer Vision", "Generative AI", "LLM", "OpenCV",
-    "Android", "Android Studio", "Flutter", "React Native", "iOS",
-    "Manual Testing", "Selenium", "Cypress", "Playwright", "Jest", "JUnit", "Postman", "API Testing", "Unit Testing", "Integration Testing",
-    "Cybersecurity", "Network Security", "Ethical Hacking", "Penetration Testing", "OWASP", "Cryptography", "IAM",
-    "UI/UX", "Figma", "Adobe XD", "Photoshop", "Product Design", "Wireframing", "Prototyping",
-    "Communication", "Leadership", "Problem Solving", "Teamwork", "Project Management", "Agile", "Scrum", "Critical Thinking", "Time Management"
-  ];
+  // 3. Create 1 Company
+  const company = await prisma.company.create({
+    data: {
+      name: "TechCorp Global",
+      industry: "Software & Cloud Services",
+      websiteUrl: "https://techcorp.example.com",
+      location: "Bangalore, India",
+      companySize: "100-250",
+      description: "TechCorp Global is an enterprise cloud software solutions provider.",
+      verificationStatus: VerificationStatus.VERIFIED,
+    },
+  });
+  console.log(`✅ Seeded 1 Company: ${company.name}`);
 
-  await Promise.all(
-    masterSkills.map((name) =>
-      prisma.skill.create({ data: { name } })
-    )
-  );
-  console.log(`✅ ${masterSkills.length} Master Skills Seeded for Autocomplete.`);
+  // 4. Create 1 Employer
+  const employerUser = await prisma.user.create({
+    data: {
+      email: "employer@techcorp.com",
+      fullName: "TechCorp Hiring Manager",
+      passwordHash: employerPassword,
+      role: Role.EMPLOYER,
+    },
+  });
 
-  console.log("🎉 Seeding complete. All other users, companies, jobs, and candidate profiles will be created organically through the site/APIs.");
+  const employerProfile = await prisma.employerProfile.create({
+    data: {
+      userId: employerUser.id,
+      companyId: company.id,
+      designation: "Lead Technical Recruiter",
+    },
+  });
+  console.log(`✅ Seeded 1 Employer: ${employerUser.email} (Password: Employer@12345)`);
+
+  // 5. Create 1 Candidate
+  const candidateUser = await prisma.user.create({
+    data: {
+      email: "candidate@skillflow.com",
+      fullName: "Rahul Sharma",
+      passwordHash: candidatePassword,
+      role: Role.CANDIDATE,
+    },
+  });
+
+  const candidateProfile = await prisma.candidateProfile.create({
+    data: {
+      userId: candidateUser.id,
+      headline: "Full Stack Software Engineer",
+      phone: "+91 98765 43210",
+      location: "Bangalore, India",
+      summary: "Passionate Full Stack Engineer with experience building modern web applications and APIs.",
+    },
+  });
+  console.log(`✅ Seeded 1 Candidate: ${candidateUser.email} (Password: Candidate@12345)`);
+
+  console.log("🎉 Seeding complete! ZERO skills and ZERO jobs were pre-seeded. All skills, jobs, companies, and applications can now be inserted via Browser GUI / Admin Dashboard / APIs.");
 }
 
 seed()
