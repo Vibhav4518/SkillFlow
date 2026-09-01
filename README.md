@@ -77,6 +77,48 @@ You can use the following default credentials for testing different user roles o
 | **Employer** | `employer@skillflow.com` | `Employer@123` |
 | **Admin** | `admin@skillflow.com` | `Admin@123` |
 
+Login Credentials for All Roles
+🛡️ Admin Account (Superadmin)
+Role: Superadmin (Full RBAC CRUD powers across all entities)
+Email: admin@skillflow.com
+Password: Admin@12345
+🏢 Employer & Company Accounts
+TechCorp Global (Primary Seeded Company & Employer)
+
+Company: TechCorp Global
+Email: employer@techcorp.com
+Password: Employer@12345
+NexusTech Solutions
+
+Company: NexusTech Solutions
+Email: employer1@nexustech.com
+Password: Employer@12345
+Apex Systems & Cloud
+
+Company: Apex Systems & Cloud
+Email: employer2@apexsystems.com
+Password: Employer@12345
+CyberPulse Security
+
+Company: CyberPulse Security
+Email: employer3@cyberpulse.com
+Password: Employer@12345
+DataDynamics AI
+
+Company: DataDynamics AI
+Email: employer4@datadynamics.com
+Password: Employer@12345
+Zenith Software Global
+
+Company: Zenith Software Global
+Email: employer5@zenithglobal.com
+Password: Employer@12345
+👨‍🎓 Candidate Account
+Name: Rahul Sharma
+Email: candidate@skillflow.com
+Password: Candidate@12345
+
+
 *Note: You can seed these default test accounts in local development by running `npm run db:seed` inside `skillFlow-backend`.*
 
 ---
