@@ -131,13 +131,13 @@ export const adminService = {
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   },
 
-  async deleteUser(userId: string) {
+  async deleteUser(userId: string, adminId?: string) {
     const res = await prisma.user.delete({ where: { id: userId } });
-    await this.logAudit({ action: "USER_DELETED", entity: "User", entityId: userId });
+    await this.logAudit({ actorId: adminId, action: "USER_DELETED", entity: "User", entityId: userId });
     return res;
   },
 
-  async createAdmin(data: { fullName: string; email: string; password?: string }) {
+  async createAdmin(data: { fullName: string; email: string; password?: string }, adminId?: string) {
     const existing = await prisma.user.findUnique({ where: { email: data.email } });
     if (existing) {
       throw new Error("User with this email already exists");
@@ -158,11 +158,11 @@ export const adminService = {
         createdAt: true,
       },
     });
-    await this.logAudit({ action: "ADMIN_CREATED", entity: "User", entityId: created.id });
+    await this.logAudit({ actorId: adminId, action: "ADMIN_CREATED", entity: "User", entityId: created.id });
     return created;
   },
 
-  async updateUser(userId: string, data: { fullName?: string; email?: string; role?: string }) {
+  async updateUser(userId: string, data: { fullName?: string; email?: string; role?: string }, adminId?: string) {
     const updated = await prisma.user.update({
       where: { id: userId },
       data: {
@@ -178,23 +178,23 @@ export const adminService = {
         createdAt: true,
       },
     });
-    await this.logAudit({ action: "USER_UPDATED", entity: "User", entityId: userId });
+    await this.logAudit({ actorId: adminId, action: "USER_UPDATED", entity: "User", entityId: userId });
     return updated;
   },
 
-  async bulkDeleteJobs(jobIds: string[]) {
+  async bulkDeleteJobs(jobIds: string[], adminId?: string) {
     await prisma.job.deleteMany({
       where: { id: { in: jobIds } },
     });
-    await this.logAudit({ action: "BULK_JOBS_DELETED", entity: "Job", entityId: jobIds.join(",") });
+    await this.logAudit({ actorId: adminId, action: "BULK_JOBS_DELETED", entity: "Job", entityId: jobIds.join(",") });
     return { count: jobIds.length };
   },
 
-  async bulkDeleteApplications(applicationIds: string[]) {
+  async bulkDeleteApplications(applicationIds: string[], adminId?: string) {
     await prisma.jobApplication.deleteMany({
       where: { id: { in: applicationIds } },
     });
-    await this.logAudit({ action: "BULK_APPLICATIONS_DELETED", entity: "JobApplication", entityId: applicationIds.join(",") });
+    await this.logAudit({ actorId: adminId, action: "BULK_APPLICATIONS_DELETED", entity: "JobApplication", entityId: applicationIds.join(",") });
     return { count: applicationIds.length };
   },
 
@@ -225,7 +225,7 @@ export const adminService = {
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   },
 
-  async verifyCompany(id: string, status: any, rejectionReason?: string) {
+  async verifyCompany(id: string, status: any, rejectionReason?: string, adminId?: string) {
     const normStatus = String(status).toUpperCase();
     const targetStatus = (normStatus === "APPROVED" || normStatus === "VERIFIED") ? "VERIFIED" : normStatus === "SUSPENDED" ? "SUSPENDED" : normStatus === "REJECTED" ? "REJECTED" : "PENDING";
     const updated = await prisma.company.update({
@@ -250,25 +250,25 @@ export const adminService = {
       }).catch(() => {});
     }
 
-    await this.logAudit({ action: `COMPANY_${targetStatus}`, entity: "Company", entityId: id });
+    await this.logAudit({ actorId: adminId, action: `COMPANY_${targetStatus}`, entity: "Company", entityId: id });
     return updated;
   },
 
-  async deleteCompany(id: string) {
+  async deleteCompany(id: string, adminId?: string) {
     const res = await prisma.company.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
-    await this.logAudit({ action: "COMPANY_DELETED", entity: "Company", entityId: id });
+    await this.logAudit({ actorId: adminId, action: "COMPANY_DELETED", entity: "Company", entityId: id });
     return res;
   },
 
-  async bulkDeleteCompanies(ids: string[]) {
+  async bulkDeleteCompanies(ids: string[], adminId?: string) {
     await prisma.company.updateMany({
       where: { id: { in: ids } },
       data: { deletedAt: new Date() },
     });
-    await this.logAudit({ action: "BULK_COMPANIES_DELETED", entity: "Company", entityId: ids.join(",") });
+    await this.logAudit({ actorId: adminId, action: "BULK_COMPANIES_DELETED", entity: "Company", entityId: ids.join(",") });
     return { count: ids.length };
   },
 
@@ -301,21 +301,21 @@ export const adminService = {
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   },
 
-  async updateJobStatus(id: string, status: any) {
+  async updateJobStatus(id: string, status: any, adminId?: string) {
     const res = await prisma.job.update({
       where: { id },
       data: { status },
     });
-    await this.logAudit({ action: "JOB_STATUS_UPDATED", entity: "Job", entityId: id, metadata: { status } });
+    await this.logAudit({ actorId: adminId, action: "JOB_STATUS_UPDATED", entity: "Job", entityId: id, metadata: { status } });
     return res;
   },
 
-  async deleteJob(id: string) {
+  async deleteJob(id: string, adminId?: string) {
     const res = await prisma.job.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
-    await this.logAudit({ action: "JOB_DELETED", entity: "Job", entityId: id });
+    await this.logAudit({ actorId: adminId, action: "JOB_DELETED", entity: "Job", entityId: id });
     return res;
   },
 
@@ -462,7 +462,7 @@ export const adminService = {
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   },
 
-  async createSkill(name: string) {
+  async createSkill(name: string, adminId?: string) {
     const trimmed = name.trim();
     const existing = await prisma.skill.findFirst({
       where: { name: { equals: trimmed, mode: 'insensitive' } },
@@ -470,23 +470,23 @@ export const adminService = {
     if (existing) return existing;
 
     const created = await prisma.skill.create({ data: { name: trimmed } });
-    await this.logAudit({ action: "SKILL_CREATED", entity: "Skill", entityId: created.id });
+    await this.logAudit({ actorId: adminId, action: "SKILL_CREATED", entity: "Skill", entityId: created.id });
     return created;
   },
 
-  async updateSkill(id: string, name: string) {
+  async updateSkill(id: string, name: string, adminId?: string) {
     const trimmed = name.trim();
     const updated = await prisma.skill.update({
       where: { id },
       data: { name: trimmed },
     });
-    await this.logAudit({ action: "SKILL_UPDATED", entity: "Skill", entityId: id });
+    await this.logAudit({ actorId: adminId, action: "SKILL_UPDATED", entity: "Skill", entityId: id });
     return updated;
   },
 
-  async deleteSkill(id: string) {
+  async deleteSkill(id: string, adminId?: string) {
     const deleted = await prisma.skill.delete({ where: { id } });
-    await this.logAudit({ action: "SKILL_DELETED", entity: "Skill", entityId: id });
+    await this.logAudit({ actorId: adminId, action: "SKILL_DELETED", entity: "Skill", entityId: id });
     return deleted;
   }
 };

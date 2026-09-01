@@ -48,7 +48,10 @@ export class JobController {
     try {
       const { jobId } = req.params;
 
-      const job = await this.jobService.getJobById(jobId);
+      const userId = (req as any).user?.userId || (req as any).user?.id;
+      const userRole = (req as any).user?.role;
+
+      const job = await this.jobService.getJobById(jobId, userId, userRole);
 
       res.status(200).json({
         success: true,

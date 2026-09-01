@@ -49,24 +49,35 @@ This project maintains clear separation between frontend and backend services ac
 
 ## ⚙️ Environment Configuration
 
-### Backend (`skillFlow-backend/.env` & `.env`)
-```env
-PORT=4000
-NODE_ENV=development
+### Required Environment Variables
 
-# PostgreSQL Database URL
-DATABASE_URL="postgresql://user:password@localhost:5432/skillflow_db?sslmode=require"
-DIRECT_URL="postgresql://user:password@localhost:5432/skillflow_db?sslmode=require"
+For local development or deployment, configure the environment variables as follows:
 
-JWT_ACCESS_SECRET="your-jwt-access-secret"
-JWT_REFRESH_SECRET="your-jwt-refresh-secret"
-CORS_ORIGIN="http://localhost:3000"
-```
+#### Backend (`skillFlow-backend/.env`)
+- `PORT`: Service port (e.g. `4000`)
+- `NODE_ENV`: Application environment (`development` / `production`)
+- `DATABASE_URL`: PostgreSQL connection string
+- `DIRECT_URL`: PostgreSQL direct connection string
+- `JWT_ACCESS_SECRET`: Secret key for signing JWT access tokens
+- `JWT_REFRESH_SECRET`: Secret key for signing JWT refresh tokens
+- `CORS_ORIGIN`: Allowed frontend origin (e.g. `http://localhost:3000`)
 
-### Frontend (`skillFlow-frontend/.env.local`)
-```env
-NEXT_PUBLIC_API_URL="http://localhost:4000/api/v1"
-```
+#### Frontend (`skillFlow-frontend/.env.local`)
+- `NEXT_PUBLIC_API_URL`: Backend API base URL (e.g. `http://localhost:4000/api/v1`)
+
+---
+
+## 🔑 Test Credentials (For Testing Purposes Only)
+
+You can use the following default credentials for testing different user roles on the platform:
+
+| Role | Email / Username | Password |
+| :--- | :--- | :--- |
+| **Candidate** | `candidate@skillflow.com` | `Candidate@123` |
+| **Employer** | `employer@skillflow.com` | `Employer@123` |
+| **Admin** | `admin@skillflow.com` | `Admin@123` |
+
+*Note: You can seed these default test accounts in local development by running `npm run db:seed` inside `skillFlow-backend`.*
 
 ---
 

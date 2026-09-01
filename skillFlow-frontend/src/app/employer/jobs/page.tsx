@@ -269,8 +269,10 @@ function EmployerJobsContent() {
                       <div className="flex items-center gap-2 mb-1.5">
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
                           job.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200" :
-                          job.status === "DRAFT" ? "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200" :
-                          "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200"
+                          job.status === "UNDER_REVIEW" ? "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200" :
+                          job.status === "REJECTED" ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400 border border-red-200" :
+                          job.status === "CLOSED" ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200" :
+                          "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200"
                         }`}>
                           {job.status}
                         </span>
@@ -283,7 +285,7 @@ function EmployerJobsContent() {
 
                   <div className="flex items-center gap-2.5 shrink-0">
                     <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800">
-                      {job._count?.applications || job.applications?.length || 0} applicants
+                      {job.applicationsCount ?? job._count?.applications ?? job.applications?.length ?? 0} candidate applicants
                     </span>
                     <button
                       onClick={() => handleOpenEdit(job)}

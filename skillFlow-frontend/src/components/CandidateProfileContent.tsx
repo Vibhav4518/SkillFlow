@@ -283,21 +283,26 @@ export default function CandidateProfileContent() {
     if (!file) return;
     try {
       setUploadingPhoto(true);
-      const photoUrl = URL.createObjectURL(file);
-      const res = await candidateApi.updateProfile({ profilePhotoUrl: photoUrl });
-      if (res?.success) {
-        toast.success("Profile photo updated!");
-        setProfileData((prev: any) => ({
-          ...prev,
-          basicDetails: {
-            ...prev.basicDetails,
-            profilePhotoUrl: photoUrl,
-          },
-        }));
-        loadAllData(true);
-      } else {
-        toast.error("Failed to update photo.");
-      }
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const photoUrl = event.target?.result as string;
+        if (!photoUrl) return;
+        const res = await candidateApi.updateProfile({ profilePhotoUrl: photoUrl });
+        if (res?.success) {
+          toast.success("Profile photo updated & saved!");
+          setProfileData((prev: any) => ({
+            ...prev,
+            basicDetails: {
+              ...prev.basicDetails,
+              profilePhotoUrl: photoUrl,
+            },
+          }));
+          loadAllData(true);
+        } else {
+          toast.error(res?.message || "Failed to update photo.");
+        }
+      };
+      reader.readAsDataURL(file);
     } catch {
       toast.error("Error uploading photo.");
     } finally {

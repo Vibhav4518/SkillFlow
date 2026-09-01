@@ -73,12 +73,25 @@ export class JobService {
   // ==========================================================
 
   async getJobById(
-    jobId: string
+    jobId: string,
+    userId?: string,
+    userRole?: string
   ): Promise<JobDetailDTO> {
     const job = await this.jobRepository.findById(jobId);
 
     if (!job) {
       throw new NotFoundError("Job not found");
+    }
+
+    if (job.status !== "PUBLISHED" && userRole?.toUpperCase() !== "ADMIN") {
+      if (userId) {
+        const employerProfile = await prisma.employerProfile.findUnique({ where: { userId } });
+        if (!employerProfile || (job as any).createdByEmployerId !== employerProfile.id) {
+          throw new NotFoundError("Job not found or not published");
+        }
+      } else {
+        throw new NotFoundError("Job not found or not published");
+      }
     }
 
     return toJobDetail(job);

@@ -14,7 +14,7 @@ export const updateProfileSchema = z.object({
     linkedinUrl: z.string().url().max(255).optional().or(z.literal("")),
     githubUrl: z.string().url().max(255).optional().or(z.literal("")),
     portfolioUrl: z.string().url().max(255).optional().or(z.literal("")),
-    profilePhotoUrl: z.string().url().max(500).optional().or(z.literal("")),
+    profilePhotoUrl: z.string().max(2000000).optional().or(z.literal("")),
     skills: z.array(z.any()).optional(),
   }),
 });

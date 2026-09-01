@@ -196,8 +196,10 @@ function AdminJobsContent() {
                       <td className="px-6 py-4">
                         <span className={`rounded-full px-2.5 py-0.5 font-bold ${
                           j.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" :
+                          j.status === "UNDER_REVIEW" ? "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400" :
+                          j.status === "REJECTED" ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400" :
                           j.status === "CLOSED" ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400" :
-                          "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+                          "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                         }`}>
                           {j.status}
                         </span>
@@ -209,10 +211,8 @@ function AdminJobsContent() {
                           className="rounded-lg border px-2 py-1 text-xs font-semibold"
                           style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-input)", color: "var(--color-text)" }}
                         >
-                          <option value="SUBMITTED">Submitted</option>
-                          <option value="UNDER_REVIEW">Under Review</option>
-                          <option value="APPROVED">Approved</option>
                           <option value="PUBLISHED">Published</option>
+                          <option value="UNDER_REVIEW">Under Review</option>
                           <option value="REJECTED">Rejected</option>
                           <option value="CLOSED">Closed</option>
                           <option value="DRAFT">Draft</option>
