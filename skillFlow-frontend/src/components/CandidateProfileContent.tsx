@@ -260,7 +260,14 @@ export default function CandidateProfileContent() {
       if (res?.success) {
         toast.success("Profile basic details updated successfully!");
         setShowBasicModal(false);
-        loadAllData();
+        setProfileData((prev: any) => ({
+          ...prev,
+          basicDetails: {
+            ...prev.basicDetails,
+            ...basicForm,
+          },
+        }));
+        loadAllData(true);
       } else {
         toast.error(res?.message || "Failed to update profile.");
       }
@@ -280,7 +287,14 @@ export default function CandidateProfileContent() {
       const res = await candidateApi.updateProfile({ profilePhotoUrl: photoUrl });
       if (res?.success) {
         toast.success("Profile photo updated!");
-        loadAllData();
+        setProfileData((prev: any) => ({
+          ...prev,
+          basicDetails: {
+            ...prev.basicDetails,
+            profilePhotoUrl: photoUrl,
+          },
+        }));
+        loadAllData(true);
       } else {
         toast.error("Failed to update photo.");
       }
@@ -309,19 +323,29 @@ export default function CandidateProfileContent() {
       toast.success("Education added!");
       setShowEduForm(false);
       setNewEdu({ institution: "", degree: "", fieldOfStudy: "", startYear: 2020, endYear: 2024, grade: "" });
-      loadAllData();
+      const addedItem = res.data || { id: Date.now().toString(), ...newEdu };
+      setProfileData((prev: any) => ({
+        ...prev,
+        education: [addedItem, ...(prev.education || [])],
+      }));
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to add education.");
     }
   };
 
   const handleDeleteEducation = async (id: string) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      education: (prev.education || []).filter((item: any) => item.id !== id),
+    }));
     const res = await candidateApi.deleteEducation(id);
     if (res?.success) {
       toast.success("Education record removed.");
-      loadAllData();
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to remove education.");
+      loadAllData(true);
     }
   };
 
@@ -342,19 +366,29 @@ export default function CandidateProfileContent() {
       toast.success("Experience added!");
       setShowExpForm(false);
       setNewExp({ company: "", title: "", startDate: "", endDate: "", isCurrent: false, description: "" });
-      loadAllData();
+      const addedItem = res.data || { id: Date.now().toString(), ...newExp };
+      setProfileData((prev: any) => ({
+        ...prev,
+        experience: [addedItem, ...(prev.experience || [])],
+      }));
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to add experience.");
     }
   };
 
   const handleDeleteExperience = async (id: string) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      experience: (prev.experience || []).filter((item: any) => item.id !== id),
+    }));
     const res = await candidateApi.deleteExperience(id);
     if (res?.success) {
       toast.success("Experience record removed.");
-      loadAllData();
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to remove experience.");
+      loadAllData(true);
     }
   };
 
@@ -369,19 +403,29 @@ export default function CandidateProfileContent() {
       toast.success("Project added!");
       setShowProjForm(false);
       setNewProj({ name: "", description: "", technologies: "", githubUrl: "", liveUrl: "" });
-      loadAllData();
+      const addedItem = res.data || { id: Date.now().toString(), ...newProj };
+      setProfileData((prev: any) => ({
+        ...prev,
+        projects: [addedItem, ...(prev.projects || [])],
+      }));
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to add project.");
     }
   };
 
   const handleDeleteProject = async (id: string) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      projects: (prev.projects || []).filter((item: any) => item.id !== id),
+    }));
     const res = await candidateApi.deleteProject(id);
     if (res?.success) {
       toast.success("Project removed.");
-      loadAllData();
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to remove project.");
+      loadAllData(true);
     }
   };
 
@@ -396,19 +440,29 @@ export default function CandidateProfileContent() {
       toast.success("Certification added!");
       setShowCertForm(false);
       setNewCert({ name: "", issuingOrganization: "", issueDate: "", credentialUrl: "" });
-      loadAllData();
+      const addedItem = res.data || { id: Date.now().toString(), ...newCert };
+      setProfileData((prev: any) => ({
+        ...prev,
+        certifications: [addedItem, ...(prev.certifications || [])],
+      }));
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to add certification.");
     }
   };
 
   const handleDeleteCertification = async (id: string) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      certifications: (prev.certifications || []).filter((item: any) => item.id !== id),
+    }));
     const res = await candidateApi.deleteCertification(id);
     if (res?.success) {
       toast.success("Certification removed.");
-      loadAllData();
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to remove certification.");
+      loadAllData(true);
     }
   };
 
@@ -423,19 +477,29 @@ export default function CandidateProfileContent() {
       toast.success("Language added!");
       setShowLangForm(false);
       setNewLang({ language: "", canRead: true, canWrite: true, canSpeak: true });
-      loadAllData();
+      const addedItem = res.data || { id: Date.now().toString(), ...newLang };
+      setProfileData((prev: any) => ({
+        ...prev,
+        languages: [addedItem, ...(prev.languages || [])],
+      }));
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to add language.");
     }
   };
 
   const handleDeleteLanguage = async (id: string) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      languages: (prev.languages || []).filter((item: any) => item.id !== id),
+    }));
     const res = await candidateApi.deleteLanguage(id);
     if (res?.success) {
       toast.success("Language removed.");
-      loadAllData();
+      loadAllData(true);
     } else {
       toast.error(res?.message || "Failed to remove language.");
+      loadAllData(true);
     }
   };
 
@@ -447,7 +511,16 @@ export default function CandidateProfileContent() {
       const res = await candidateApi.uploadResume(file);
       if (res?.success) {
         toast.success("Resume uploaded successfully!");
-        loadAllData();
+        const updatedResume = res.resume || res.data || { url: URL.createObjectURL(file), originalName: file.name };
+        setProfileData((prev: any) => ({
+          ...prev,
+          resume: updatedResume,
+          basicDetails: {
+            ...prev.basicDetails,
+            resumeUrl: updatedResume.url,
+          },
+        }));
+        loadAllData(true);
       } else {
         toast.error(res?.message || "Failed to upload resume.");
       }
@@ -463,7 +536,15 @@ export default function CandidateProfileContent() {
       const res = await candidateApi.deleteResume();
       if (res?.success) {
         toast.success("Resume removed.");
-        loadAllData();
+        setProfileData((prev: any) => ({
+          ...prev,
+          resume: {},
+          basicDetails: {
+            ...prev.basicDetails,
+            resumeUrl: "",
+          },
+        }));
+        loadAllData(true);
       } else {
         toast.error(res?.message || "Failed to remove resume.");
       }
