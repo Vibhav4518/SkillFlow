@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   title: "SkillFlow - Modern Talent & Hiring Platform",
   description:
     "Connect top talent with leading employers. SkillFlow streamlines modern hiring, candidate management, and career opportunities.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
